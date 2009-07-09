@@ -1,0 +1,236 @@
+<?php
+// $Id$
+
+/**
+ * Implementation of hook_install().
+ */
+function webform2pdf_install() {
+  drupal_install_schema('webform2pdf');
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function webform2pdf_enable() {
+  $key = variable_get('webform2pdf_key', '');
+  if ( empty($key) ) {
+    variable_set('webform2pdf_key', md5(uniqid(rand(), TRUE)));
+    variable_set('webform2pdf_default', array('download' => 0, 'pdf_send_email' => 0,
+      'page_format' => 'A4', 'page_orientation' => 'P', 'h_left_logo' => 0,
+      'h_right_logo' => 0, 'f_left_logo' => 0, 'f_right_logo' => 0,
+      'h_font_size' => 10, 'p_font_size' => 12, 'f_font_size' => 10,
+      'h_txt_align' => 'L', 'h_font_family' => 'dejavuserif',
+      'p_txt_align' => 'L', 'p_font_family' => 'dejavuserif',
+      'f_txt_align' => 'L', 'f_font_family' => 'dejavuserif',
+      'h_txt' => '', 'f_txt' => '', 'p_body' => '', 'format' => 0,
+      'h_left_logo_size' => '270x205', 'h_right_logo_size' => '270x205',
+      'f_left_logo_size' => '270x56', 'f_right_logo_size' => '270x56',
+    ));
+  }
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function webform2pdf_uninstall() {
+  drupal_uninstall_schema('webform2pdf');
+  variable_del('webform2pdf_default');
+}
+
+/**
+ * Implementation of hook_schema().
+ * @return array ticket database schema
+ */
+function webform2pdf_schema() {
+  $schema['webform2pdf'] = array(
+    'description' => t('Database containing the settings of webform2pdf.'),
+    'fields' => array(
+      'nid' => array(
+        'description' => t('The node identifier of a webform2pdf.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'enabled' => array(
+        'description' => t('Show if a pdf will be generated: 0: OFF, 1: ON.'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'download' => array(
+        'description' => t('Download PDF file after submitting the form.'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'pdf_send_email' => array(
+        'description' => t('Attach PDF file as an attachment to the e-mail.'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'page_format' => array(
+        'description' => t('Size of a page in the PDF document.'),
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'default' => 'A4',
+      ),
+
+      'page_orientation' => array(
+        'description' => t('Orientation of the PDF document.'),
+        'type' => 'varchar',
+        'length' => 1,
+        'not null' => TRUE,
+        'default' => 'P',
+      ),
+
+      'h_left_logo' => array(
+        'description' => t('Logo on the left side of the header.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'h_right_logo' => array(
+        'description' => t('Logo on the right side of the header.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'f_left_logo' => array(
+        'description' => t('Logo on the left side of the footer.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'f_right_logo' => array(
+        'description' => t('Logo on the right side of the footer.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'h_font_size' => array(
+        'description' => t('Header text font size.'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 10,
+      ),
+
+      'p_font_size' => array(
+        'description' => t('Body text font size.'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 12,
+      ),
+
+      'f_font_size' => array(
+        'description' => t('Footer text font size.'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 10,
+      ),
+
+      'h_txt_align' => array(
+        'description' => t('Alignment of the header text.'),
+        'type' => 'varchar',
+        'length' => 1,
+        'not null' => TRUE,
+        'default' => 'L',
+      ),
+
+      'h_font_family' => array(
+        'description' => t('Header text font type.'),
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'default' => 'dejavuserif',
+      ),
+
+      'p_txt_align' => array(
+        'description' => t('Alignment of the body text.'),
+        'type' => 'varchar',
+        'length' => 1,
+        'not null' => TRUE,
+        'default' => 'L',
+      ),
+
+      'p_font_family' => array(
+        'description' => t('Font type of the body.'),
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'default' => 'dejavuserif',
+      ),
+
+      'f_txt_align' => array(
+        'description' => t('Footer text aligment.'),
+        'type' => 'varchar',
+        'length' => 1,
+        'not null' => TRUE,
+        'default' => 'L',
+      ),
+
+      'f_font_family' => array(
+        'description' => t('Footer text font type.'),
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'default' => 'dejavuserif',
+      ),
+
+      'h_txt' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'normal',
+        'description' => t('Header text.'),
+      ),
+
+      'f_txt' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'normal',
+        'description' => t('Footer text.'),
+      ),
+
+      'p_body' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'normal',
+        'description' => t('Text of the body.'),
+      ),
+
+      'format' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => t('Text input format type.'),
+      ),
+    ),
+    'primary key' => array('nid'),
+  );
+  return $schema;
+}
