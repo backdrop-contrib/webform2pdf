@@ -1,8 +1,8 @@
 <?php
 
-$tcpdf_dir = drupal_get_path('module', 'webform2pdf') .'/tcpdf';
-$tcpdf_path = realpath(dirname($tcpdf_dir));
-include_once( $tcpdf_dir .'/tcpdf.php' );
+$default = variable_get('webform2pdf_default', '');
+include_once($default['pdf_lib'] .'/tcpdf.php');
+
 class W2PDF extends TCPDF {
 
   /**
@@ -105,7 +105,6 @@ class W2PDF extends TCPDF {
     $ormargins = $this->getOriginalMargins();
     $headerfont = $this->getHeaderFont();
     $headerdata = $this->getHeaderData();
-//    var_dump( $this->getPageWidth() - $headerdata['logo_width'] );
 
     $imgy['left'] = $imgy['right'] = $this->GetY();
     $header_w = 0;

@@ -18,14 +18,21 @@ Installing webform2pdf Drupal module
   2.3 Extract downloaded TCPDF zip file:
     $ unzip tcpdf_*.zip
     
-  2.4 Copy extracted directory to webform2pdf module directory
+  2.4 Copy extracted directory to sites/all/libraries directory
   
   2.5 Log in to Drupal, as an administrator, and enable webform2pdf module.
   
 3.First steps
-  3.1 Create a form (or open an existing one), using webform Drupal module.
+  3.1 General settings are available at ?q=admin/settings/webform2pdf.
+
+  3.2 Create a form (or open an existing one), using webform Drupal module.
   
-  3.2 If the installation was successful, "Generate PDF" submenu item will
+  3.3 If the installation was successful, "Generate PDF" submenu item will
       appear, when the form is opened for editing. After enabling
       "Generate PDF Document", settings of the generated PDF document will
       appear.
+
+4. Theme:
+  4.1 If you want to enable a custom e-mail template for this form, insert the
+      following line into the webform-mail-[nodeid].tpl.php theme template file:
+  include drupal_get_path('module', 'webform2pdf') . '/webform2pdf-mail.tpl.php';

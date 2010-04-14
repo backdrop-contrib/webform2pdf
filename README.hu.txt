@@ -18,15 +18,22 @@ Telepítési útmutató webform2pdf modulhoz.
   2.3 Ezután csomagoljuk ki a TCPDF-et is:
     $ unzip tcpdf_*.zip
   
-  2.4 A létrejött tcpdf könyvtárat másoljuk a webform2pdf modul könyvtárába.
+  2.4 A létrejött tcpdf könyvtárat másoljuk a sites/all/libraries könyvtárába.
   
   2.5 Lépjünk be a Drupalba adminisztrátorként es kapcsoljuk be (?q=admin/modules)
       a webform2pdf modult.
 
 3. Első lépések.
-  3.1 Hozzunk létre egy Űrlapot (vagy keressünk egy meglévőt) a webform modul
+  3.1 Az általános beállítások a ?q=admin/settings/webform2pdf oldalon találhatók.
+
+  3.2 Hozzunk létre egy Űrlapot (vagy keressünk egy meglévőt) a webform modul
       segítségével.
   
-  3.2 Az űrlap szerkesztés menüjében található egyik almenü 'PDF készítés'.
+  3.3 Az űrlap szerkesztés menüjében található egyik almenü 'PDF készítés'.
       Itt engedélyezzük a PDF készítést, ezután megjelennek az elkészülő
       PDF beállítási lehetőségei.
+
+4. Sminkelés
+  4.1 Ha egyéni e-mail sablon tartozik az űrlaphoz, akkor a következő sort el
+      kell helyezni a smink állományban (webform-mail-[nodeid].tpl.php):
+  include drupal_get_path('module', 'webform2pdf') . '/webform2pdf-mail.tpl.php';
