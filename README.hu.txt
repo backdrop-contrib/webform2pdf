@@ -32,8 +32,3 @@ Telepítési útmutató webform2pdf modulhoz.
   3.3 Az űrlap szerkesztés menüjében található egyik almenü 'PDF készítés'.
       Itt engedélyezzük a PDF készítést, ezután megjelennek az elkészülő
       PDF beállítási lehetőségei.
-
-4. Sminkelés
-  4.1 Ha egyéni e-mail sablon tartozik az űrlaphoz, akkor a következő sort el
-      kell helyezni a smink állományban (webform-mail-[nodeid].tpl.php):
-  include drupal_get_path('module', 'webform2pdf') . '/webform2pdf-mail.tpl.php';
