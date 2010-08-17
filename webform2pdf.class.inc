@@ -109,10 +109,13 @@ class W2PDF extends TCPDF {
     $imgy['left'] = $imgy['right'] = $this->GetY();
     $header_w = 0;
 
+    $empty_header = 1;
+
     if ( (!empty($headerdata['logo']['left'])) && (!empty($headerdata['logo_size']['left']['w'])) ) {
       if (($headerdata['logo']['left']) AND ($headerdata['logo']['left'] != K_BLANK_IMAGE)) {
         $this->Image(K_PATH_IMAGES . $headerdata['logo']['left'], $this->GetX(), $this->getHeaderMargin(), $headerdata['logo_size']['left']['w']);
         $imgy['left'] = $this->getImageRBY();
+        $empty_header = 0;
       }
     }
 
@@ -122,6 +125,7 @@ class W2PDF extends TCPDF {
 
         $header_w = $this->getPageWidth() - $ormargins['left'] - $ormargins['right'] - ($headerdata['logo_size']['left']['w'] * 1.1) - ($headerdata['logo_size']['right']['w'] * 1.1);
         $imgy['right'] = $this->getImageRBY();
+        $empty_header = 0;
       }
     }
 
@@ -139,6 +143,11 @@ class W2PDF extends TCPDF {
     // header html string
     $this->SetFont($headerfont[0], $headerfont[1], $headerfont[2]);
     $this->SetX($header_x);
+
+    if ( !empty($headerdata['string']) ) {
+      $empty_header = 0;
+    }
+
     $this->writeHTMLCell($header_w, $cell_height, '', '', $headerdata['string'], 0, 1, 0, TRUE, $headerdata['align']);
     // print an ending header line
     $this->SetLineStyle(array('width' => 0.85 / $this->getScaleFactor(), 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
@@ -150,7 +159,10 @@ class W2PDF extends TCPDF {
     else {
       $this->SetX($ormargins['left']);
     }
-    $this->Cell(0, 0, '', 'T', 0, 'C');
+
+    if ( !$empty_header ) {
+      $this->Cell(0, 0, '', 'T', 0, 'C');
+    }
     $this->SetTopMargin($this->GetY()+1);
   }
 
@@ -164,6 +176,8 @@ class W2PDF extends TCPDF {
     $footerdata = $this->getFooterData();
     $imgy['left'] = $imgy['right'] = $this->GetY();
     $footer_w = 0;
+
+    $empty_footer = 1;
 
 //    $footer_height = $cell_height = count( explode("\n", $footerdata['string']) ) * round(($this->getCellHeightRatio() * $footerfont[2]) / $this->getScaleFactor(), 2);
     $cell_height = 18;
@@ -179,6 +193,7 @@ class W2PDF extends TCPDF {
       if (($footerdata['logo']['left']) AND ($footerdata['logo']['left'] != K_BLANK_IMAGE)) {
         $this->Image(K_PATH_IMAGES . $footerdata['logo']['left'], $this->GetX(), $this->GetY(), $footerdata['logo_size']['left']['w']);
         $imgy['left'] = $this->getImageRBY();
+        $empty_footer = 0;
       }
     }
 
@@ -188,6 +203,7 @@ class W2PDF extends TCPDF {
 
         $footer_w = $this->getPageWidth() - $ormargins['left'] - $ormargins['right'] - ($footerdata['logo_size']['left']['w'] * 1.1) - ($footerdata['logo_size']['right']['w'] * 1.1);
         $imgy['right'] = $this->getImageRBY();
+        $empty_footer = 0;
       }
     }
 
@@ -213,6 +229,11 @@ class W2PDF extends TCPDF {
     $page_var = array("%pagenumber" => $this->PageNoFormatted(), "%totalpage" => $this->getAliasNbPages());
     $footerdata['string'] = strtr($footerdata['string'], $page_var);
     $this->SetFont($footerfont[0], $footerfont[1], $footerfont[2]);
+
+    if ( !empty($footerdata['string']) ) {
+      $empty_footer = 0;
+    }
+
     $this->writeHTMLCell($footer_w, $cell_height, '', '', $footerdata['string'], 0, 0, 0, TRUE, $footerdata['align']);
 
     if ($this->getRTL()) {
@@ -221,6 +242,8 @@ class W2PDF extends TCPDF {
     else {
       $this->SetX($ormargins['left']);
     }
-    $this->Cell(0, 0, '', 'T', 0, 'C');
+    if ( !$empty_footer ) {
+      $this->Cell(0, 0, '', 'T', 0, 'C');
+    }
   }
 }

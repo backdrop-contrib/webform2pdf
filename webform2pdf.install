@@ -254,6 +254,44 @@ function webform2pdf_update_6001() {
   return $ret;
 }
 
+function webform2pdf_update_6200() {
+  $result = db_query("SELECT nid, no_send_email_addr FROM {webform2pdf} WHERE enabled = 1");
+  while ( $row = db_fetch_array($result) ) {
+    $no_send_email_addr = unserialize($row['no_send_email_addr']);
+    $no_send_email_addr = array_diff($no_send_email_addr, array(0));
+    if (!empty ($no_send_email_addr)) {
+      $no_send_mail = array();
+      $node = node_load($row['nid']);
+
+      foreach ($no_send_email_addr as $key => $nomail) {
+        if ($nomail === 'email') {
+          foreach ($node->webform['emails'] as $eid => $email) {
+            if ( !is_numeric($email['email']) ) {
+              $no_send_mail[$eid] = $eid;
+              break;
+            }
+          }
+        }
+        elseif (is_numeric($nomail)) {
+          foreach ($node->webform['emails'] as $eid => $email) {
+            if ( $email['email'] == $nomail ) {
+              $no_send_mail[$eid] = $eid;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    if ( !empty($no_send_mail) ) {
+      db_query("UPDATE {webform2pdf} SET no_send_email_addr = '%s' WHERE nid = %d", serialize($no_send_mail), $row['nid']);
+    }
+  }
+
+  $ret = array();
+  return $ret;
+}
+
 /**
  * Implementation of hook_requirements().
  */

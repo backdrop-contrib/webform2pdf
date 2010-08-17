@@ -31,3 +31,8 @@ Installing webform2pdf Drupal module
       appear, when the form is opened for editing. After enabling
       "Generate PDF Document", settings of the generated PDF document will
       appear.
+
+4. Theme:
+  4.1 If you want to enable a custom e-mail template for this form, insert the
+      following line into the webform-mail-[nodeid].tpl.php theme template file:
+  include drupal_get_path('module', 'webform2pdf') . '/webform2pdf-mail.tpl.php';

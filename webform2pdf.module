@@ -130,7 +130,7 @@ global $webform2pdf_send2pdf;
   if ($webform2pdf['enabled']) {
     $no_mail = unserialize($webform2pdf['no_send_email_addr']);
     $nopdf = array();
-    
+
     $no_mail = array_diff($no_mail, array(0));
     if ( !empty($no_mail) ) {
       foreach ($no_mail as $eid) {
