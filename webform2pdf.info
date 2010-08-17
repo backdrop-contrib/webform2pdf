@@ -2,4 +2,5 @@
 name = WebForm 2 PDF
 description = Generates PDF documents from the submitted webforms.
 core = 6.x
+package = Webform
 dependencies[] = webform
