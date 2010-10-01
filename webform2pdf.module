@@ -106,6 +106,9 @@ function webform2pdf_theme() {
     'webform2pdf_mail2pdf' => array(
       'arguments' => array('nid' => NULL, 'sid' => NULL),
     ),
+    'webform2pdf_filename' => array(
+      'arguments' => array('node' => NULL, 'submission' => NULL),
+    ),
   );
 } // function webform2pdf_theme()
 
@@ -122,27 +125,29 @@ function webform2pdf_help($path, $arg) {
   }
 } // function webform2pdf_help()
 
-
 function webform2pdf_preprocess_webform_mail_message(&$vars) {
 global $webform2pdf_send2pdf;
 
   $webform2pdf = _webform2pdf_get_template($vars['node']->nid);
+  $nopdf = array();
+  
   if ($webform2pdf['enabled']) {
     $no_mail = unserialize($webform2pdf['no_send_email_addr']);
-    $nopdf = array();
 
-    $no_mail = array_diff($no_mail, array(0));
-    if ( !empty($no_mail) ) {
-      foreach ($no_mail as $eid) {
-        $email_addresses = $vars['node']->webform['emails'][$eid]['email'];
-        if ( isset($vars['node']->webform['components'][$email_addresses]) ) {
-          $email_addresses = $vars['submission']->data[$eid]['value'];
+    if (is_array($no_mail)) {
+      $no_mail = array_diff($no_mail, array(0));
+      if ( !empty($no_mail) ) {
+        foreach ($no_mail as $eid) {
+          $email_addresses = $vars['node']->webform['emails'][$eid]['email'];
+          if ( isset($vars['node']->webform['components'][$email_addresses]) ) {
+            $email_addresses = $vars['submission']->data[$eid]['value'];
+          }
+          else {
+            $email_addresses = array_filter(explode(',', check_plain($vars['node']->webform['emails'][$eid]['email'])));
+          }
+          $nopdf = array_merge($nopdf, $email_addresses);
+          $nopdf = array_map("trim", $nopdf);
         }
-        else {
-          $email_addresses = array_filter(explode(',', check_plain($vars['node']->webform['emails'][$eid]['email'])));
-        }
-        $nopdf = array_merge($nopdf, $email_addresses);
-        $nopdf = array_map("trim", $nopdf);
       }
     }
 
@@ -605,7 +610,6 @@ function webform2pdf_admin_settings_submit($form, &$form_state) {
       }
     }
   }
-
 
   $save = $form_state['values'];
   foreach (array('h_left_logo_del', 'h_right_logo_del', 'f_left_logo_del', 'f_right_logo_del',
@@ -1470,6 +1474,10 @@ function _webform2pdf_get_submissions($nid, $header = NULL, $sids = array()) {
   return $submissions;
 } // function _webform2pdf_get_submissions()
 
+function theme_webform2pdf_filename($node, $submission) {
+  return "webform_submission-". $node->nid .'-'. $submission->sid .".pdf";
+}
+
 /*
  * _webform2pdf_download_pdf_form: Creates a form, where the submissions can be downloaded in PDF format
  */
@@ -1800,7 +1808,7 @@ function webform2pdf_submission_download_pdf($node, $submission, $output_type = 
       // reset pointer to the last page
       $pdf->lastPage();
 
-      $filename = "webform_submission-". $node->nid .'-'. $submission->sid .".pdf";
+      $filename = theme('webform2pdf_filename', $node, $submission);
 
       if ( $output_type == 'S') {
         return $pdf->Output($filename, $output_type);
@@ -1845,10 +1853,15 @@ function webform2pdf_mail_alter(&$message) {
       $message['body'] = $body;
       unset($body);
 
+      $node = node_load($webform2pdf_send2pdf['nid']);
+      $submission = webform_menu_submission_load($webform2pdf_send2pdf['sid'], $nid) ;
+      $filename = $filename = theme('webform2pdf_filename', $node, $submission);
+      unset($node, $submission);
+
       $message['body'] .= "\n\n--". $trenner ."\n";
-      $message['body'] .= "Content-Type: application/pdf; name=\"webform_submission-". $webform2pdf_send2pdf['nid'] .'-'. $webform2pdf_send2pdf['sid'] .".pdf\"\n";
+      $message['body'] .= "Content-Type: application/pdf; name=\"". $filename ."\"n";
       $message['body'] .= "Content-Transfer-Encoding: base64\n";
-      $message['body'] .= "Content-Disposition: attachment; filename=\"webform_submission-". $webform2pdf_send2pdf['nid'] .'-'. $webform2pdf_send2pdf['sid'] .".pdf\"\n\n";
+      $message['body'] .= "Content-Disposition: attachment; filename=\"". $filename ."\"\n\n";
       $message['body'] .= chunk_split( base64_encode( theme('webform2pdf_mail2pdf', $webform2pdf_send2pdf['nid'], $webform2pdf_send2pdf['sid']) ) );
       $message['body'] .= "\n\n";
       $message['body'] .= "--". $trenner ."--";
