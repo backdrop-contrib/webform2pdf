@@ -1285,19 +1285,34 @@ function _webform2pdf_get_template_vars($node, $submission) {
     if ( !empty($submission->data[$component['cid']]['value'] ) ) {
       switch ($component['type']) {
         case 'date':
-          $timestamp = strtotime($submission->data[$component['cid']]['value'][0] .'/'. $submission->data[$component['cid']]['value'][1] .'/'. $submission->data[$component['cid']]['value'][2] .' GMT');
-          $format = webform_date_format('medium');
-          $date = format_date($timestamp, 'custom', $format, 0);
+          if ( !empty($submission->data[$component['cid']]['value'][0]) ) {
+            $timestamp = strtotime($submission->data[$component['cid']]['value'][0] .' GMT');
+            $format = webform_date_format('medium');
+            $date = format_date($timestamp, 'custom', $format, 0);
 
-          $tokens['%'. $component['form_key']] = $date;
+            $tokens['%'. $component['form_key']] = $date;
+          }
+          else {
+            $tokens['%'. $component['form_key']] = '';
+          }
         break;
 
         case 'time':
           if ( !empty($submission->data[$component['cid']]['value'][0]) ) {
-            $tokens['%'. $component['form_key']] = $submission->data[$component['cid']]['value'][0] .':'. $submission->data[$component['cid']]['value'][1];
-            if ( !empty($submission->data[$component['cid']]['value'][2]) ) {
-              $tokens['%'. $component['form_key']] .= ' '. $submission->data[$component['cid']]['value'][2];
+            list($hour, $min, $sec) = explode(':', $submission->data[$component['cid']]['value'][0]);
+            $ampm = '';
+
+            if ($component['extra']['hourformat'] === '12-hour') {
+              if ($hour > 12) {
+                $hour -= 12;
+                $ampm = t('pm');
+              }
+              else {
+                $ampm = t('am');
+              }
             }
+
+            $tokens['%'. $component['form_key']] = trim($hour .':'. $min .' '. $ampm);
           }
           else {
             $tokens['%'. $component['form_key']] = '';
@@ -1305,25 +1320,39 @@ function _webform2pdf_get_template_vars($node, $submission) {
         break;
 
         case 'grid':
-          $options = array();
-          $opts = explode("<nl2br>", preg_replace("/(\r\n)+|(\n|\r)+/", "<nl2br>", $component['extra']['options']) );
-          foreach ($opts as $opt) {
-            list($key, $var) = explode('|', $opt);
-            if ( empty($var) ) {
-              $options[$key] = trim($key);
+          $answers = $questions = array();
+          $a = explode("<nl2br>", preg_replace("/(\r\n)+|(\n|\r)+/", "<nl2br>", $component['extra']['options']) );;
+          $q = explode("<nl2br>", preg_replace("/(\r\n)+|(\n|\r)+/", "<nl2br>", $component['extra']['questions']) );
+
+          foreach ($a as $key => $value) {
+            if ( strpos($value, '|') === FALSE ) {
+              $key = $option = $value;
             }
             else {
-              $options[$key] = trim($var);
+              $key = drupal_substr($value, 0, strpos($value, '|'));
+              $option = drupal_substr($value, strpos($value, '|') + 1);
+            }
+            $answers[$key] = $option;
+          }
+
+          foreach ($q as $key => $value) {
+            if ( strpos($value, '|') === FALSE ) {
+              $key = $option = $value;
+            }
+            else {
+              $key = drupal_substr($value, 0, strpos($value, '|'));
+              $option = drupal_substr($value, strpos($value, '|') + 1);
+            }
+            $questions[$key] = $option;
+          }
+
+          $grid = array();
+          foreach ($submission->data[$component['cid']]['value'] as $question => $answer) {
+            if ( isset($questions[$question]) && isset($answers[$answer]) ) {
+              $grid[] = $questions[$question] .': '. $answers[$answer];
             }
           }
-          $questions = explode("<nl2br>", preg_replace("/(\r\n)+|(\n|\r)+/", "<nl2br>", $component['extra']['questions']) );
-
-          ksort($submission->data[$component['cid']]['value']);
-          $t = array();
-          foreach ($submission->data[$component['cid']]['value'] as $num => $answer) {
-            $t[] = $questions[$num] .': '. $options[$answer];
-          }
-          $tokens['%'. $component['form_key']] = implode("<br />\n", $t);
+          $tokens['%'. $component['form_key']] = implode("<br />\n", $grid);
         break;
 
         case 'select':
@@ -1335,29 +1364,34 @@ function _webform2pdf_get_template_vars($node, $submission) {
           if ( is_array($values) ) {
             $items = explode("<nl2br>", preg_replace("/(\r\n)+|(\n|\r)+/", "<nl2br>", $component['extra']['items']) );
 
-            $selectNL = $selectAll = $selectAllNL = array();
-
-            foreach ($values as $value) {
-              $selectNL[] = ' - '. $value ."<br />\n";
-            }
-
-            foreach ($items as $key => $item) {
-              if ( strpos($item, '|') ) {
-                $item = drupal_substr($item, 0, strpos($item, '|'));
-              }
-
-              if ( in_array($item, $values)) {
-                $selectAll[] = '<u><b><span class="selected">'. $item .'</span></b></u>';
-                $selectAllNL[] = ' [X] '. $item ."<br />\n";
-
+            $options = array();
+            foreach ($items as $item) {
+              if ( strpos($item, '|') === FALSE ) {
+                $key = $option = $item;
               }
               else {
-                $selectAll[] = $item;
-                $selectAllNL[] = ' [  ] '. $item ."<br />\n";
+                $key = drupal_substr($item, 0, strpos($item, '|'));
+                $option = drupal_substr($item, strpos($item, '|') + 1);
+              }
+              $options[$key] = $option;
+            }
+
+            $select = $selectNL = $selectAll = $selectAllNL = array();
+
+            foreach ($options as $key => $option) {
+              if ( (in_array($option, $values)) || (in_array($key, $values)) ) {
+                $select[] = $option;
+                $selectNL[] = ' - '. $option ."<br />\n";
+                $selectAll[] = '<u><b><span class="selected">'. $option .'</span></b></u>';
+                $selectAllNL[] = ' [X] '. $option ."<br />\n";
+              }
+              else {
+                $selectAll[] = $option;
+                $selectAllNL[] = ' [  ] '. $option ."<br />\n";
               }
             }
 
-            $tokens['%'. $component['form_key']] = implode(', ', $values);
+            $tokens['%'. $component['form_key']] = implode(', ', $select);
             $tokens['%'. $component['form_key'] .'-all'] = implode(', ', $selectAll);
             $tokens['%'. $component['form_key'] .'-nl'] = implode('', $selectNL);
             $tokens['%'. $component['form_key'] .'-all-nl'] = implode('', $selectAllNL);
