@@ -126,7 +126,7 @@ function webform2pdf_help($path, $arg) {
 } // function webform2pdf_help()
 
 function webform2pdf_preprocess_webform_mail_message(&$vars) {
-global $webform2pdf_send2pdf;
+  global $webform2pdf_send2pdf;
 
   $webform2pdf = _webform2pdf_get_template($vars['node']->nid);
   $nopdf = array();
@@ -1675,11 +1675,10 @@ function theme_webform2pdf_pdf_init($node, $template) {
 /*
  * _webform2pdf_pdf_header: pdf header data
  */
-function _webform2pdf_pdf_header(&$pdf, &$node, &$template) {
+function _webform2pdf_pdf_header($pdf, $node, $template) {
   if (!empty($template['h_left_logo'])) {
     $f = _webform2pdf_get_file($template['h_left_logo']);
     $s = getimagesize($f->filepath);
-
     $logo['left'] = $f->filepath;
     // 75dpi image, image size convert millimeter
     $size['left']['w'] = $s[0]/75*25;
@@ -1713,14 +1712,14 @@ function _webform2pdf_pdf_header(&$pdf, &$node, &$template) {
 /*
  * _webform2pdf_pdf_header: pdf header theme hook
  */
-function theme_webform2pdf_pdf_header(&$pdf, &$node, &$template) {
+function theme_webform2pdf_pdf_header($pdf, $node, $template) {
   return _webform2pdf_pdf_header($pdf, $node, $template);
 } // function theme_webform2pdf_pdf_header()
 
 /*
  * _webform2pdf_pdf_footer: pdf footer data
  */
-function _webform2pdf_pdf_footer(&$pdf, &$node, &$template) {
+function _webform2pdf_pdf_footer($pdf, $node, $template) {
   if (!empty($template['f_left_logo'])) {
     $f = _webform2pdf_get_file($template['f_left_logo']);
     $s = getimagesize($f->filepath);
@@ -1758,14 +1757,14 @@ function _webform2pdf_pdf_footer(&$pdf, &$node, &$template) {
 /*
  * theme_webform2pdf_pdf_footer: pdf footer theme hook
  */
-function theme_webform2pdf_pdf_footer(&$pdf, &$node, &$template) {
+function theme_webform2pdf_pdf_footer($pdf, $node, $template) {
   return _webform2pdf_pdf_footer($pdf, $node, $template);
 } // function theme_webform2pdf_pdf_footer()
 
 /*
  * _webform2pdf_pdf_page: pdf page init
  */
-function _webform2pdf_pdf_page(&$pdf) {
+function _webform2pdf_pdf_page($pdf) {
 
   // set margins
   $pdf->SetMargins(15, 20, 15);
@@ -1782,14 +1781,14 @@ function _webform2pdf_pdf_page(&$pdf) {
 /*
  * theme_webform2pdf_pdf_page: pdf page theme hook
  */
-function theme_webform2pdf_pdf_page(&$pdf) {
+function theme_webform2pdf_pdf_page($pdf) {
   return _webform2pdf_pdf_page($pdf);
 } // function theme_webform2pdf_pdf_page()
 
 /*
  * _webform2pdf_pdf_content: Fills PDF page with content
  */
-function _webform2pdf_pdf_content(&$pdf, &$node, &$template, &$tokens) {
+function _webform2pdf_pdf_content($pdf, $node, $template, $tokens) {
   $pdf->SetFont($template['p_font_family'], '', $template['p_font_size'] );
 
   foreach ($template['pages'] as $page) {
@@ -1808,7 +1807,7 @@ function _webform2pdf_pdf_content(&$pdf, &$node, &$template, &$tokens) {
 /*
  * theme_webform2pdf_pdf_content: pdf content theme hook
  */
-function theme_webform2pdf_pdf_content(&$pdf, &$node, &$template, &$tokens) {
+function theme_webform2pdf_pdf_content($pdf, $node, $template, $tokens) {
   return _webform2pdf_pdf_content($pdf, $node, $template, $tokens);
 } // function theme_webform2pdf_pdf_content()
 
