@@ -119,14 +119,15 @@ class W2PDF extends TCPDF {
       }
     }
 
-    if ( (!empty($headerdata['logo']['left'])) && (!empty($headerdata['logo_size']['left']['w'])) ) {
-      if (($headerdata['logo']['right']) AND ($headerdata['logo']['right'] != K_BLANK_IMAGE)) {
-        $this->Image(K_PATH_IMAGES . $headerdata['logo']['right'], ($this->getPageWidth() - $ormargins['right'] - $headerdata['logo_size']['right']['w']), $this->getHeaderMargin(), $headerdata['logo_size']['right']['w']);
+    if (($headerdata['logo']['right']) AND ($headerdata['logo']['right'] != K_BLANK_IMAGE)) {
+      $this->Image(K_PATH_IMAGES . $headerdata['logo']['right'], ($this->getPageWidth() - $ormargins['right'] - $headerdata['logo_size']['right']['w']), $this->getHeaderMargin(), $headerdata['logo_size']['right']['w']);
 
-        $header_w = $this->getPageWidth() - $ormargins['left'] - $ormargins['right'] - ($headerdata['logo_size']['left']['w'] * 1.1) - ($headerdata['logo_size']['right']['w'] * 1.1);
-        $imgy['right'] = $this->getImageRBY();
-        $empty_header = 0;
+      $header_w = $this->getPageWidth() - $ormargins['left'] - $ormargins['right'] - ($headerdata['logo_size']['right']['w'] * 1.1);
+      if ( (!empty($headerdata['logo']['left'])) && (!empty($headerdata['logo_size']['left']['w'])) ) {
+        $header_w -= $headerdata['logo_size']['left']['w'] * 1.1;
       }
+      $imgy['right'] = $this->getImageRBY();
+      $empty_header = 0;
     }
 
     $cell_height = round(($this->getCellHeightRatio() * $headerfont[2]) / $this->getScaleFactor(), 2);
@@ -197,14 +198,15 @@ class W2PDF extends TCPDF {
       }
     }
 
-    if ( (!empty($footerdata['logo']['left'])) && (!empty($footerdata['logo_size']['left']['w'])) ) {
-      if (($footerdata['logo']['right']) AND ($footerdata['logo']['right'] != K_BLANK_IMAGE)) {
-        $this->Image(K_PATH_IMAGES . $footerdata['logo']['right'], ($this->getPageWidth() - $ormargins['right'] - $footerdata['logo_size']['right']['w']), $this->GetY(), $footerdata['logo_size']['right']['w']);
+    if (($footerdata['logo']['right']) AND ($footerdata['logo']['right'] != K_BLANK_IMAGE)) {
+      $this->Image(K_PATH_IMAGES . $footerdata['logo']['right'], ($this->getPageWidth() - $ormargins['right'] - $footerdata['logo_size']['right']['w']), $this->GetY(), $footerdata['logo_size']['right']['w']);
 
-        $footer_w = $this->getPageWidth() - $ormargins['left'] - $ormargins['right'] - ($footerdata['logo_size']['left']['w'] * 1.1) - ($footerdata['logo_size']['right']['w'] * 1.1);
-        $imgy['right'] = $this->getImageRBY();
-        $empty_footer = 0;
+      $footer_w = $this->getPageWidth() - $ormargins['left'] - $ormargins['right'] - ($footerdata['logo_size']['right']['w'] * 1.1);
+      if ( (!empty($footerdata['logo']['left'])) && (!empty($footerdata['logo_size']['left']['w'])) ) {
+        $footer_w -= $footerdata['logo_size']['left']['w'] * 1.1;
       }
+      $imgy['right'] = $this->getImageRBY();
+      $empty_footer = 0;
     }
 
     $this->SetTextColor(0, 0, 0);
