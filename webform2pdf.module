@@ -38,7 +38,7 @@ function webform2pdf_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('webform2pdf_download_pdf_form', 1),
     'file' => 'webform.report.inc',
-    'file path' => drupal_get_path('module', 'webform') .'/includes',
+    'file path' => drupal_get_path('module', 'webform') . '/includes',
     'access callback' => 'webform2pdf_enabled_pdf_access',
     'access arguments' => array(1, 'user_access', 'access webform results'),
     'weight' => 9,
@@ -120,7 +120,7 @@ function webform2pdf_help($path, $arg) {
 
   switch ($path) {
     case 'node/%/webform-results/downloadpdf':
-      return $output = '<p>'. t('A PDF document will be generated from the marked results.') .'</p>';
+      return $output = '<p>' . t('A PDF document will be generated from the marked results.') . '</p>';
     break;
   }
 } // function webform2pdf_help()
@@ -568,8 +568,8 @@ function webform2pdf_admin_settings() {
  * webform2pdf_admin_settings_validate: implementation of validate hook
  */
 function webform2pdf_admin_settings_validate($form, &$form_state) {
-  if ( !is_file($form_state['values']['pdf_lib'] .'/tcpdf.php')   ) {
-    form_set_error('pdf_lib', t('Not found TCPDF library: %dir!', array('%dir' => $form_state['values']['pdf_lib'] .'/tcpdf.php') ));
+  if ( !is_file($form_state['values']['pdf_lib'] . '/tcpdf.php')   ) {
+    form_set_error('pdf_lib', t('Not found TCPDF library: %dir!', array('%dir' => $form_state['values']['pdf_lib'] . '/tcpdf.php') ));
   }
 
   if ( !preg_match("/^\d+x\d+$/", $form_state['values']['h_left_logo_size'], $t) ) {
@@ -606,8 +606,8 @@ function webform2pdf_admin_settings_validate($form, &$form_state) {
 function webform2pdf_admin_settings_submit($form, &$form_state) {
   // File deleted.
   foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
-    if ( isset($form_state['values'][$logo .'_del']) ) {
-      if ( $form_state['values'][$logo .'_del'] ) {
+    if ( isset($form_state['values'][$logo . '_del']) ) {
+      if ( $form_state['values'][$logo . '_del'] ) {
         if ( (_webform2pdf_use_file($form_state['values'][$logo])-1) == 0) {
           $logo_file = _webform2pdf_get_file($form_state['values'][$logo]);
           file_delete($logo_file->filepath);
@@ -619,13 +619,13 @@ function webform2pdf_admin_settings_submit($form, &$form_state) {
 
   // Header and footer image file save.
   foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
-    if ( isset($form_state['values'][$logo .'_file']) ) {
+    if ( isset($form_state['values'][$logo . '_file']) ) {
       $validators = array(
         'file_validate_is_image' => array(),
-        'file_validate_image_resolution' => array($form_state['values'][$logo .'_size']),
+        'file_validate_image_resolution' => array($form_state['values'][$logo . '_size']),
       );
 
-      if ( $file = file_save_upload($logo .'_file', $validators, file_directory_path() ) ) {
+      if ( $file = file_save_upload($logo . '_file', $validators, file_directory_path() ) ) {
         file_set_status($file, FILE_STATUS_PERMANENT);
         $form_state['values'][$logo] = $file->fid;
       }
@@ -1103,8 +1103,8 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
 
     // Image file deleted.
     foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
-      if ( isset($form_state['values'][$logo .'_del']) ) {
-        if ( $form_state['values'][$logo .'_del'] ) {
+      if ( isset($form_state['values'][$logo . '_del']) ) {
+        if ( $form_state['values'][$logo . '_del'] ) {
           if ( (_webform2pdf_use_file($form_state['values'][$logo])-1) == 0) {
             $logo_file = _webform2pdf_get_file($form_state['values'][$logo]);
             file_delete($logo_file->filepath);
@@ -1116,13 +1116,13 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
 
     // Header and footer image file save.
     foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
-      if ( isset($form_state['values'][$logo .'_file']) ) {
+      if ( isset($form_state['values'][$logo . '_file']) ) {
         $validators = array(
           'file_validate_is_image' => array(),
-          'file_validate_image_resolution' => array($webform2pdf_default[$logo .'_size']),
+          'file_validate_image_resolution' => array($webform2pdf_default[$logo . '_size']),
         );
 
-        if ( $file = file_save_upload($logo .'_file', $validators, file_directory_path() ) ) {
+        if ( $file = file_save_upload($logo . '_file', $validators, file_directory_path() ) ) {
           file_set_status($file, FILE_STATUS_PERMANENT);
           $update[$logo] = $file->fid;
         }
@@ -1258,10 +1258,10 @@ function _webform2pdf_list_template_vars($node) {
   foreach ($node->webform['components'] as $component) {
     switch ($component['type']) {
       case 'select':
-        $tokens[] = '%'. $component['form_key'];
-        $tokens[] = '%'. $component['form_key'] .'-all';
-        $tokens[] = '%'. $component['form_key'] .'-nl';
-        $tokens[] = '%'. $component['form_key'] .'-all-nl';
+        $tokens[] = '%' . $component['form_key'];
+        $tokens[] = '%' . $component['form_key'] . '-all';
+        $tokens[] = '%' . $component['form_key'] . '-nl';
+        $tokens[] = '%' . $component['form_key'] . '-all-nl';
       break;
 
       case 'email':
@@ -1271,14 +1271,14 @@ function _webform2pdf_list_template_vars($node) {
       case 'textarea':
       case 'textfield':
       case 'grid':
-        $tokens[] = '%'. $component['form_key'];
+        $tokens[] = '%' . $component['form_key'];
       break;
 
         // markup', 'pagebreak', etc.
       default:
         // calling _hook_webform2pdf_list_template_vars hivas, support of extra types
         foreach (module_list() as $module) {
-          $function = '_'. $module .'webform2pdf_list_template_vars';
+          $function = '_' . $module . 'webform2pdf_list_template_vars';
           if (function_exists($function)) {
             call_user_func($function, $component, $tokens);
           }
@@ -1307,14 +1307,14 @@ function _webform2pdf_get_template_vars($node, $submission) {
       switch ($component['type']) {
         case 'date':
           if ( !empty($submission->data[$component['cid']]['value'][0]) ) {
-            $timestamp = strtotime($submission->data[$component['cid']]['value'][0] .' GMT');
+            $timestamp = strtotime($submission->data[$component['cid']]['value'][0] . ' GMT');
             $format = webform_date_format('medium');
             $date = format_date($timestamp, 'custom', $format, 0);
 
-            $tokens['%'. $component['form_key']] = $date;
+            $tokens['%' . $component['form_key']] = $date;
           }
           else {
-            $tokens['%'. $component['form_key']] = '';
+            $tokens['%' . $component['form_key']] = '';
           }
         break;
 
@@ -1333,10 +1333,10 @@ function _webform2pdf_get_template_vars($node, $submission) {
               }
             }
 
-            $tokens['%'. $component['form_key']] = trim($hour .':'. $min .' '. $ampm);
+            $tokens['%' . $component['form_key']] = trim($hour . ':' . $min . ' ' . $ampm);
           }
           else {
-            $tokens['%'. $component['form_key']] = '';
+            $tokens['%' . $component['form_key']] = '';
           }
         break;
 
@@ -1370,10 +1370,10 @@ function _webform2pdf_get_template_vars($node, $submission) {
           $grid = array();
           foreach ($submission->data[$component['cid']]['value'] as $question => $answer) {
             if ( isset($questions[$question]) && isset($answers[$answer]) ) {
-              $grid[] = $questions[$question] .': '. $answers[$answer];
+              $grid[] = $questions[$question] . ': ' . $answers[$answer];
             }
           }
-          $tokens['%'. $component['form_key']] = implode("<br />\n", $grid);
+          $tokens['%' . $component['form_key']] = implode("<br />\n", $grid);
         break;
 
         case 'select':
@@ -1402,26 +1402,26 @@ function _webform2pdf_get_template_vars($node, $submission) {
             foreach ($options as $key => $option) {
               if ( (in_array($option, $values)) || (in_array($key, $values)) ) {
                 $select[] = $option;
-                $selectNL[] = ' - '. $option ."<br />\n";
-                $selectAll[] = '<u><b><span class="selected">'. $option .'</span></b></u>';
-                $selectAllNL[] = ' [X] '. $option ."<br />\n";
+                $selectNL[] = ' - ' . $option . "<br />\n";
+                $selectAll[] = '<u><b><span class="selected">' . $option . '</span></b></u>';
+                $selectAllNL[] = ' [X] ' . $option . "<br />\n";
               }
               else {
                 $selectAll[] = $option;
-                $selectAllNL[] = ' [  ] '. $option ."<br />\n";
+                $selectAllNL[] = ' [  ] ' . $option . "<br />\n";
               }
             }
 
-            $tokens['%'. $component['form_key']] = implode(', ', $select);
-            $tokens['%'. $component['form_key'] .'-all'] = implode(', ', $selectAll);
-            $tokens['%'. $component['form_key'] .'-nl'] = implode('', $selectNL);
-            $tokens['%'. $component['form_key'] .'-all-nl'] = implode('', $selectAllNL);
+            $tokens['%' . $component['form_key']] = implode(', ', $select);
+            $tokens['%' . $component['form_key'] . '-all'] = implode(', ', $selectAll);
+            $tokens['%' . $component['form_key'] . '-nl'] = implode('', $selectNL);
+            $tokens['%' . $component['form_key'] . '-all-nl'] = implode('', $selectAllNL);
           }
           else {
-            $tokens['%'. $component['form_key']] =
-            $tokens['%'. $component['form_key'] .'-all'] =
-            $tokens['%'. $component['form_key'] .'-nl'] =
-            $tokens['%'. $component['form_key'] .'-all-nl'] = '';
+            $tokens['%' . $component['form_key']] =
+            $tokens['%' . $component['form_key'] . '-all'] =
+            $tokens['%' . $component['form_key'] . '-nl'] =
+            $tokens['%' . $component['form_key'] . '-all-nl'] = '';
           }
         break;
 
@@ -1430,10 +1430,10 @@ function _webform2pdf_get_template_vars($node, $submission) {
         case 'textarea':
         case 'textfield':
           if ( !empty($submission->data[$component['cid']]['value'][0]) ) {
-            $tokens['%'. $component['form_key']] = $submission->data[$component['cid']]['value'][0];
+            $tokens['%' . $component['form_key']] = $submission->data[$component['cid']]['value'][0];
           }
           else {
-            $tokens['%'. $component['form_key']] = '';
+            $tokens['%' . $component['form_key']] = '';
           }
         break;
 
@@ -1441,7 +1441,7 @@ function _webform2pdf_get_template_vars($node, $submission) {
         default:
           // _hook_webform2pdf_get_template_vars call, support of extra types
           foreach (module_list() as $module) {
-            $function = '_'. $module .'webform2pdf_get_template_vars';
+            $function = '_' . $module . 'webform2pdf_get_template_vars';
             if (function_exists($function)) {
               call_user_func($function, $component, $submission, $tokens);
             }
@@ -1660,15 +1660,15 @@ function _webform2pdf_init_tcpdf($node, $template) {
   define('K_TCPDF_EXTERNAL_CONFIG', TRUE);
   define('K_PATH_MAIN', dirname($_SERVER['SCRIPT_FILENAME']));
   define('K_PATH_URL', $base_url);
-  define('K_PATH_FONTS', $default['pdf_lib'] .'/fonts/');
-  define('K_PATH_CACHE', $default['pdf_lib'] .'/cache/');
+  define('K_PATH_FONTS', $default['pdf_lib'] . '/fonts/');
+  define('K_PATH_CACHE', $default['pdf_lib'] . '/cache/');
   define('K_PATH_IMAGES', '');
-  define('K_BLANK_IMAGE', $default['pdf_lib'] .'/images/_blank.png');
+  define('K_BLANK_IMAGE', $default['pdf_lib'] . '/images/_blank.png');
   define('K_CELL_HEIGHT_RATIO', 1.25);
   define('K_SMALL_RATIO', 2/3);
 
-  if ( is_file($default['pdf_lib'] .'/tcpdf.php')   ) {
-    include_once( drupal_get_path('module', 'webform2pdf') .'/webform2pdf.class.inc' );
+  if ( is_file($default['pdf_lib'] . '/tcpdf.php')   ) {
+    include_once( drupal_get_path('module', 'webform2pdf') . '/webform2pdf.class.inc' );
 
     $font = Array(
       variable_get('print_pdf_font_family', PRINT_PDF_FONT_FAMILY_DEFAULT),
@@ -1897,14 +1897,14 @@ function webform2pdf_mail_alter(&$message) {
     }
 
     if ( $attach_pdf ) {
-      $trenner  = '------------'. md5(uniqid(time()));
+      $trenner  = '------------' . md5(uniqid(time()));
 
       $content_type = $message['headers']['Content-Type'];
-      $message['headers']['Content-Type'] = 'multipart/mixed; boundary="'. $trenner .'"';
+      $message['headers']['Content-Type'] = 'multipart/mixed; boundary="' . $trenner . '"';
       unset($message['headers']['Content-Transfer-Encoding']);
 
-      $body = "\n--". $trenner ."\n".
-            "Content-Type: " . $content_type . "\n".
+      $body = "\n--" . $trenner . "\n" .
+            "Content-Type: " . $content_type . "\n" .
             "Content-Transfer-Encoding: 8bit\n\n";
       $body .= is_array($message['body']) ? drupal_wrap_mail(implode("\n\n", $message['body'])) : drupal_wrap_mail($message['body']);
 
@@ -1917,13 +1917,13 @@ function webform2pdf_mail_alter(&$message) {
       $filename = theme('webform2pdf_filename', $node, $webform2pdf_send2pdf['sid']);
       unset($node);
 
-      $message['body'] .= "\n\n--". $trenner ."\n";
-      $message['body'] .= "Content-Type: application/pdf; name=\"". $filename ."\"\n";
+      $message['body'] .= "\n\n--" . $trenner . "\n";
+      $message['body'] .= "Content-Type: application/pdf; name=\"" . $filename . "\"\n";
       $message['body'] .= "Content-Transfer-Encoding: base64\n";
-      $message['body'] .= "Content-Disposition: attachment; filename=\"". $filename ."\"\n\n";
+      $message['body'] .= "Content-Disposition: attachment; filename=\"" . $filename . "\"\n\n";
       $message['body'] .= chunk_split( base64_encode( theme('webform2pdf_mail2pdf', $webform2pdf_send2pdf['nid'], $webform2pdf_send2pdf['sid']) ) );
       $message['body'] .= "\n\n";
-      $message['body'] .= "--". $trenner ."--";
+      $message['body'] .= "--" . $trenner . "--";
     }
   }
 } // function webform2pdf_mail_alter()
@@ -1967,10 +1967,10 @@ function theme_webform2pdf_mail2pdf($nid, $sid) {
  * webform2pdf_url_encode: pdf download anonymous url generation.
  */
 function webform2pdf_url_encode($nid, $sid, $encode = TRUE) {
-  $url = 'node/'. $nid .'/submission/'. $sid .'/downloadpdf';
+  $url = 'node/' . $nid . '/submission/' . $sid . '/downloadpdf';
   if ($encode && ( function_exists('mcrypt_encrypt') ) ) {
     $key = variable_get('webform2pdf_key', '');
-    return 'webform2pdf/'. urlencode(trim(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $url, MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND)))));
+    return 'webform2pdf/' . urlencode(trim(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $url, MCRYPT_MODE_ECB, mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND)))));
   }
   return $url;
 } // function webform2pdf_url_encode()

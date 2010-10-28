@@ -1,4 +1,10 @@
 <?php
+// $Id$
+
+/**
+ * @file
+ *   Webform2pdf module W2PDF object class.
+ */
 
 $default = variable_get('webform2pdf_default', '');
 include_once($default['pdf_lib'] .'/tcpdf.php');

@@ -2,6 +2,11 @@
 // $Id$
 
 /**
+ * @file
+ *   Webform2pdf module install/schema hooks.
+ */
+
+/**
  * Implementation of hook_install().
  */
 function webform2pdf_install() {
