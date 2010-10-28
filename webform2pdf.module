@@ -156,6 +156,29 @@ function webform2pdf_preprocess_webform_mail_message(&$vars) {
 }
 
 /**
+ * Adds a pdf download link to the webform submission page.
+ */
+function webform2pdf_preprocess_webform_results_submissions(&$vars) {
+  $rows =& $vars['table']['#rows'];
+
+  $i = 0;
+  $table_row_keys = array_keys($vars['table']['#rows']);
+  foreach ($vars['submissions'] as $sid => $submission) {
+    if (webform2pdf_enabled_pdf_access($vars['node'], 'webform_submission_access', $vars['node'], $submission->nid, 'view')) {
+      $rows[$table_row_keys[$i]][] = l(t('Download PDF'), 'node/' . $submission->nid . '/submission/' . $submission->sid . '/downloadpdf');
+    }
+    else {
+      $rows[$table_row_keys[$i]][] = '';
+    }
+    $i++;
+  }
+
+  $last_header_key = array_pop(array_keys($vars['table']['#header']));
+  $vars['table']['#operation_total'] += 1;
+  $vars['table']['#header'][$last_header_key]['colspan'] += 1;
+}
+
+/**
  * Overview form of all components for this webform.
  */
 function webform2pdf_admin_settings() {
