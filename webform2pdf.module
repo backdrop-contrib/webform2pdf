@@ -130,8 +130,7 @@ function webform2pdf_preprocess_webform_mail_message(&$vars) {
 
   $webform2pdf = _webform2pdf_get_template($vars['node']->nid);
   $nopdf = array();
-  
-  if ($webform2pdf['enabled']) {
+  if ($webform2pdf['enabled'] && $webform2pdf['pdf_send_email']) {
     $no_mail = unserialize($webform2pdf['no_send_email_addr']);
 
     if (is_array($no_mail)) {
@@ -155,7 +154,6 @@ function webform2pdf_preprocess_webform_mail_message(&$vars) {
     $webform2pdf_send2pdf = array('nid' => $vars['node']->nid, 'sid' => $vars['submission']->sid, 'nopdf' => $nopdf);
   }
 }
-
 
 /**
  * Overview form of all components for this webform.
@@ -1509,7 +1507,12 @@ function _webform2pdf_get_submissions($nid, $header = NULL, $sids = array()) {
 } // function _webform2pdf_get_submissions()
 
 function theme_webform2pdf_filename($node, $submission) {
-  return "webform_submission-". $node->nid .'-'. $submission->sid .".pdf";
+  $sid = is_object($submission) ? $submission->sid : $submission;
+
+  $pdf_file_name = "webform_submission-" . $node->nid;
+  $pdf_file_name .= !empty($sid) ? '-' . $sid : '';
+  $pdf_file_name .= ".pdf";
+  return $pdf_file_name;
 }
 
 /*
@@ -1615,7 +1618,7 @@ function webform2pdf_download_pdf_form_submit($form, &$form_state) {
 
     // reset pointer to the last page
     $pdf->lastPage();
-    $filename = "webform_submissions-". $form_state['values']['nid'] .'-'. time() .".pdf";
+    $filename = theme('webform2pdf_filename', $node, time());
 
     // Close and output PDF document
     $pdf->Output($filename, 'I');
@@ -1887,12 +1890,11 @@ function webform2pdf_mail_alter(&$message) {
       unset($body);
 
       $node = node_load($webform2pdf_send2pdf['nid']);
-      $submission = webform_menu_submission_load($webform2pdf_send2pdf['sid'], $nid) ;
-      $filename = $filename = theme('webform2pdf_filename', $node, $submission);
-      unset($node, $submission);
+      $filename = theme('webform2pdf_filename', $node, $webform2pdf_send2pdf['sid']);
+      unset($node);
 
       $message['body'] .= "\n\n--". $trenner ."\n";
-      $message['body'] .= "Content-Type: application/pdf; name=\"". $filename ."\"n";
+      $message['body'] .= "Content-Type: application/pdf; name=\"". $filename ."\"\n";
       $message['body'] .= "Content-Transfer-Encoding: base64\n";
       $message['body'] .= "Content-Disposition: attachment; filename=\"". $filename ."\"\n\n";
       $message['body'] .= chunk_split( base64_encode( theme('webform2pdf_mail2pdf', $webform2pdf_send2pdf['nid'], $webform2pdf_send2pdf['sid']) ) );
