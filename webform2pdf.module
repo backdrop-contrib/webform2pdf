@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * This menu appears only if 'Generate PDF' option is enabled
