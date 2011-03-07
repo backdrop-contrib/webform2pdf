@@ -315,6 +315,10 @@ function webform2pdf_requirements($phase) {
     else {
       include_once( $default['pdf_lib'] .'/tcpdf.php' );
       list($tmp, $version, $tmp) = explode(' ', PDF_PRODUCER);
+      if (empty($version)) {
+        $pdf = new TCPDF();
+        $version = $pdf->getTCPDFVersion();
+      }
       if ( version_compare('4.5.000', $version) >= 0) {
         $error = TRUE;
         $severity = REQUIREMENT_ERROR;
