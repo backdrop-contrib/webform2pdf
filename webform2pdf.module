@@ -39,7 +39,7 @@ function webform2pdf_menu() {
     'file' => 'webform.report.inc',
     'file path' => drupal_get_path('module', 'webform') . '/includes',
     'access callback' => 'webform2pdf_enabled_pdf_access',
-    'access arguments' => array(1, 'user_access', 'access webform results'),
+    'access arguments' => array(1, 'webform_results_access', 1),
     'weight' => 9,
     'type' => MENU_LOCAL_TASK,
   );
