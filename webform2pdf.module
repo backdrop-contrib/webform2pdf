@@ -124,10 +124,8 @@ function webform2pdf_help($path, $arg) {
   }
 } // function webform2pdf_help()
 
-function webform2pdf_preprocess_webform_mail_message(&$vars) {
-  global $webform2pdf_send2pdf;
-
-  $webform2pdf = _webform2pdf_get_template($vars['node']->nid);
+function webform2pdf_send2pdf($node, $submission) {
+  $webform2pdf = _webform2pdf_get_template($node->nid);
   $nopdf = array();
   if ($webform2pdf['enabled'] && $webform2pdf['pdf_send_email']) {
     $no_mail = unserialize($webform2pdf['no_send_email_addr']);
@@ -136,12 +134,12 @@ function webform2pdf_preprocess_webform_mail_message(&$vars) {
       $no_mail = array_diff($no_mail, array(0));
       if ( !empty($no_mail) ) {
         foreach ($no_mail as $eid) {
-          $email_addresses = $vars['node']->webform['emails'][$eid]['email'];
-          if ( isset($vars['node']->webform['components'][$email_addresses]) ) {
-            $email_addresses = $vars['submission']->data[$eid]['value'];
+          $email_addresses = $node->webform['emails'][$eid]['email'];
+          if ( isset($node->webform['components'][$email_addresses]) ) {
+            $email_addresses = $submission->data[$eid]['value'];
           }
           else {
-            $email_addresses = array_filter(explode(',', check_plain($vars['node']->webform['emails'][$eid]['email'])));
+            $email_addresses = array_filter(explode(',', check_plain($node->webform['emails'][$eid]['email'])));
           }
           $nopdf = array_merge($nopdf, $email_addresses);
           $nopdf = array_map("trim", $nopdf);
@@ -150,7 +148,7 @@ function webform2pdf_preprocess_webform_mail_message(&$vars) {
     }
 
     // Check for a multi-page form that is not yet complete.
-    $webform2pdf_send2pdf = array('nid' => $vars['node']->nid, 'sid' => $vars['submission']->sid, 'nopdf' => $nopdf);
+    return array('nid' => $node->nid, 'sid' => $submission->sid, 'nopdf' => $nopdf);
   }
 }
 
@@ -1884,7 +1882,7 @@ function webform2pdf_submission_download_pdf($node, $submission, $output_type = 
  * webform2pdf_mail_alter: hook_mail_alter
  */
 function webform2pdf_mail_alter(&$message) {
-  global $webform2pdf_send2pdf;
+  $webform2pdf_send2pdf = webform2pdf_send2pdf($message['params']['node'], $message['params']['submission']);
 
   if ( ($message['id'] == 'webform_submission') && (isset($webform2pdf_send2pdf['nid'])) ) {
     $attach_pdf = 1;
