@@ -1409,6 +1409,18 @@ function _webform2pdf_get_template_vars($node, $submission) {
               }
             }
 
+            // select_or_other modul support
+            if (module_exists('select_or_other')) {
+              if ( empty($select) ) {
+                if ( !empty($values[0]) ) {
+                  $select[] = $values[0];
+                  $selectNL[] = ' - ' . $values[0] . "<br />\n";
+                  $selectAll[] = '<u><b><span class="selected">' . $values[0] . '</span></b></u>';
+                  $selectAllNL[] = ' [X] ' . $values[0] . "<br />\n";
+                }
+              }
+            }
+
             $tokens['%' . $component['form_key']] = implode(', ', $select);
             $tokens['%' . $component['form_key'] . '-all'] = implode(', ', $selectAll);
             $tokens['%' . $component['form_key'] . '-nl'] = implode('', $selectNL);
