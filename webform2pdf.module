@@ -1275,7 +1275,7 @@ function _webform2pdf_list_template_vars($node) {
       default:
         // calling _hook_webform2pdf_list_template_vars hivas, support of extra types
         foreach (module_list() as $module) {
-          $function = '_' . $module . 'webform2pdf_list_template_vars';
+          $function = '_' . $module . '_webform2pdf_list_template_vars';
           if (function_exists($function)) {
             call_user_func($function, $component, $tokens);
           }
@@ -1438,7 +1438,7 @@ function _webform2pdf_get_template_vars($node, $submission) {
         default:
           // _hook_webform2pdf_get_template_vars call, support of extra types
           foreach (module_list() as $module) {
-            $function = '_' . $module . 'webform2pdf_get_template_vars';
+            $function = '_' . $module . '_webform2pdf_get_template_vars';
             if (function_exists($function)) {
               call_user_func($function, $component, $submission, $tokens);
             }
