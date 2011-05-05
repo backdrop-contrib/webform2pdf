@@ -389,10 +389,10 @@ function _webform2pdf_get_template_vars($node, $submission) {
             if (module_exists('select_or_other')) {
               if ( empty($select) ) {
                 if ( !empty($values[0]) ) {
-                  $select[] = $values[0];
-                  $selectNL[] = ' - ' . $values[0] . "<br />\n";
-                  $selectAll[] = '<u><b><span class="selected">' . $values[0] . '</span></b></u>';
-                  $selectAllNL[] = ' [X] ' . $values[0] . "<br />\n";
+                  $select[] = check_plain($values[0]);
+                  $selectNL[] = ' - ' . check_plain($values[0]) . "<br />\n";
+                  $selectAll[] = '<u><b><span class="selected">' . check_plain($values[0]) . '</span></b></u>';
+                  $selectAllNL[] = ' [X] ' . check_plain($values[0]) . "<br />\n";
                 }
               }
             }
@@ -415,7 +415,7 @@ function _webform2pdf_get_template_vars($node, $submission) {
         case 'textarea':
         case 'textfield':
           if ( !empty($submission->data[$component['cid']]['value'][0]) ) {
-            $tokens['%' . $component['form_key']] = $submission->data[$component['cid']]['value'][0];
+            $tokens['%' . $component['form_key']] = nl2br(check_plain($submission->data[$component['cid']]['value'][0]), TRUE);
           }
           else {
             $tokens['%' . $component['form_key']] = '';
