@@ -415,7 +415,8 @@ function _webform2pdf_get_template_vars($node, $submission) {
         case 'textarea':
         case 'textfield':
           if ( !empty($submission->data[$component['cid']]['value'][0]) ) {
-            $tokens['%' . $component['form_key']] = nl2br(check_plain($submission->data[$component['cid']]['value'][0]), TRUE);
+            $tokens['%' . $component['form_key']] = str_replace('<br>', '<br />',
+                nl2br(check_plain($submission->data[$component['cid']]['value'][0])));
           }
           else {
             $tokens['%' . $component['form_key']] = '';
