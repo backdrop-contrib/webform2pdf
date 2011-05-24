@@ -380,19 +380,25 @@ function _webform2pdf_get_template_vars($node, $submission) {
                 $selectAllNL[] = ' [X] ' . $option . "<br />\n";
               }
               else {
-                $selectAll[] = $option;
-                $selectAllNL[] = ' [  ] ' . $option . "<br />\n";
+                if (!empty($option)) {
+                  $selectAll[] = $option;
+                  $selectAllNL[] = ' [  ] ' . $option . "<br />\n";
+                }
               }
             }
 
-            // select_or_other modul support
+            // select_or_other module support
             if (module_exists('select_or_other')) {
-              if ( empty($select) ) {
-                if ( !empty($values[0]) ) {
-                  $select[] = check_plain($values[0]);
-                  $selectNL[] = ' - ' . check_plain($values[0]) . "<br />\n";
-                  $selectAll[] = '<u><b><span class="selected">' . check_plain($values[0]) . '</span></b></u>';
-                  $selectAllNL[] = ' [X] ' . check_plain($values[0]) . "<br />\n";
+              $potential_values = array_merge(array_keys($options), array_values($options));
+              $diff = array_diff($values, $potential_values);
+              if (count($diff)) {
+                foreach ($diff as $value) {
+                  if ( !empty($value) ) {
+                    $select[] = check_plain($value);
+                    $selectNL[] = ' - ' . check_plain($value) . "<br />\n";
+                    $selectAll[] = '<u><b><span class="selected">' . check_plain($value) . '</span></b></u>';
+                    $selectAllNL[] = ' [X] ' . check_plain($value) . "<br />\n";
+                  }
                 }
               }
             }
