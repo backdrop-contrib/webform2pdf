@@ -2,9 +2,7 @@
 /**
  * Overview form of all components for this webform.
  */
-function webform2pdf_admin_settings() {
-  $form = array();
-
+function webform2pdf_admin_settings($form, &$form_state) {
   $default = variable_get('webform2pdf_default', '');
 
   // It is needed because of file upload
@@ -90,7 +88,7 @@ function webform2pdf_admin_settings() {
     '#title' => t('Maximum dimensions of left footer logo'),
     '#default_value' => $default['f_left_logo_size'],
     '#size' => 10,
-    '#description' => t('Maximum dimensions of the logo on the left side of the footer in pixels. <b>WARNING! Setting height greater than 56px could cause error in PDF output.</b> Format: width x height. E.g: 270x205'),
+    '#description' => t('Maximum dimensions of the logo on the left side of the footer in pixels. Format: width x height. E.g: 270x56 <br /> <b>WARNING! Setting height greater than 56px could cause error in PDF output.</b>'),
   );
 
   $form['img']['f_right_logo_size'] = array(
@@ -98,7 +96,7 @@ function webform2pdf_admin_settings() {
     '#title' => t('Maximum dimensions of right footer logo'),
     '#default_value' => $default['f_right_logo_size'],
     '#size' => 10,
-    '#description' => t('Maximum dimensions of the logo on the right side of the footer in pixels. <b>WARNING! Setting height greater than 56px could cause error in PDF output.</b> Format: width x height. E.g: 270x205'),
+    '#description' => t('Maximum dimensions of the logo on the right side of the footer in pixels. Format: width x height. E.g: 270x56 <br /> <b>WARNING! Setting height greater than 56px could cause error in PDF output.</b>'),
   );
 
   // Header
@@ -115,12 +113,17 @@ function webform2pdf_admin_settings() {
   );
 
   if ($default['h_left_logo']) {
-    $logo_file = _webform2pdf_get_file($default['h_left_logo']);
+    $logo_file = file_load($default['h_left_logo']);
 
+    $picture = array(
+      'path'=> $logo_file->uri,
+      'alt' => 'Header left logo.',
+      'title' => $logo_file->filename,
+    );
     $form['header']['h_left_logo_img'] = array(
       '#type' => 'item',
       '#title' => t('Logo on the left side'),
-      '#value' => theme('image', $logo_file->filepath, 'Header left logo.', $logo_file->filename),
+      '#markup' => theme('image', $picture),
     );
     $form['header']['h_left_logo_del'] = array(
       '#type' => 'checkbox',
@@ -189,12 +192,17 @@ function webform2pdf_admin_settings() {
   );
 
   if ($default['h_right_logo']) {
-    $logo_file = _webform2pdf_get_file($default['h_right_logo']);
+    $logo_file = file_load($default['h_right_logo']);
+    $picture = array(
+      'path'=> $logo_file->uri,
+      'alt' => 'Header right logo.',
+      'title' => $logo_file->filename,
+    );
 
     $form['header']['h_right_logo_img'] = array(
       '#type' => 'item',
       '#title' => t('Logo on the right side'),
-      '#value' => theme('image', $logo_file->filepath, 'Header right logo.', $logo_file->filename),
+      '#markup' => theme('image', $picture),
     );
     $form['header']['h_right_logo_del'] = array(
       '#type' => 'checkbox',
@@ -220,15 +228,15 @@ function webform2pdf_admin_settings() {
   );
 
   $form['page']['p_body'] = array(
-    '#type' => 'textarea',
+    '#type' => 'text_format',
+    '#base_type' => 'textarea',
     '#title' => t('Page body'),
+    '#format' => isset($edit['format']) ? $edit['format'] : NULL,
     '#rows' => '10',
     '#default_value' => $default['p_body'],
     '#description' => t("The content of the PDF file can be defined here, the text can be formatted with HTML and CSS tags. The form elements can be referred with the following special strings: !vars."
     , array('!vars' => '%pagebreak')) . theme('webform_token_help'),
   );
-
-  $form['page']['format'] = filter_form($default['format']);
 
   $form['page']['p_txt_align'] = array(
     '#type' => 'select',
@@ -281,12 +289,17 @@ function webform2pdf_admin_settings() {
   );
 
   if ($default['f_left_logo']) {
-    $logo_file = _webform2pdf_get_file($default['f_left_logo']);
+    $logo_file = file_load($default['f_left_logo']);
 
+    $picture = array(
+      'path'=> $logo_file->uri,
+      'alt' => 'Footer left logo.',
+      'title' => $logo_file->filename,
+    );
     $form['footer']['f_left_logo_img'] = array(
       '#type' => 'item',
       '#title' => t('Logo on the left side'),
-      '#value' => theme('image', $logo_file->filepath, 'Footer left logo.', $logo_file->filename),
+      '#markup' => theme('image', $picture),
     );
     $form['footer']['f_left_logo_del'] = array(
       '#type' => 'checkbox',
@@ -355,12 +368,18 @@ function webform2pdf_admin_settings() {
   );
 
   if ($default['f_right_logo']) {
-    $logo_file = _webform2pdf_get_file($default['f_right_logo']);
+    $logo_file = file_load($default['f_right_logo']);
+
+    $picture = array(
+      'path'=> $logo_file->uri,
+      'alt' => 'Footer right logo.',
+      'title' => $logo_file->filename,
+    );
 
     $form['footer']['f_right_logo_img'] = array(
       '#type' => 'item',
       '#title' => t('Logo on the right side'),
-      '#value' => theme('image', $logo_file->filepath, 'Footer right logo.', $logo_file->filename),
+      '#markup' => theme('image', $picture),
     );
     $form['footer']['f_right_logo_del'] = array(
       '#type' => 'checkbox',
@@ -386,27 +405,17 @@ function webform2pdf_admin_settings() {
 } // function webform2pdf_admin_settings()
 
 /*
- * webform2pdf_admin_settings_validate: implementation of validate hook
+ * webform2pdf_admin_settings_validate: Implements validate hook
  */
 function webform2pdf_admin_settings_validate($form, &$form_state) {
   if ( !is_file($form_state['values']['pdf_lib'] . '/tcpdf.php')   ) {
     form_set_error('pdf_lib', t('Not found TCPDF library: %dir!', array('%dir' => $form_state['values']['pdf_lib'] . '/tcpdf.php') ));
   }
 
-  if ( !preg_match("/^\d+x\d+$/", $form_state['values']['h_left_logo_size'], $t) ) {
-    form_set_error('h_left_logo_size', t('Wrong picture size format!'));
-  }
-
-  if ( !preg_match("/^\d+x\d+$/", $form_state['values']['h_right_logo_size'], $t) ) {
-    form_set_error('h_right_logo_size', t('Wrong picture size format!'));
-  }
-
-  if ( !preg_match("/^\d+x\d+$/", $form_state['values']['f_left_logo_size'], $t) ) {
-    form_set_error('f_left_logo_size', t('Wrong picture size format!'));
-  }
-
-  if ( !preg_match("/^\d+x\d+$/", $form_state['values']['f_right_logo_size'], $t) ) {
-    form_set_error('f_right_logo_size', t('Wrong picture size format!'));
+  foreach (array('h_left_logo_size', 'h_right_logo_size', 'f_left_logo_size', 'f_right_logo_size') as $logo_size) {
+    if ( !preg_match("/^\d+x\d+$/", $form_state['values'][$logo_size]) ) {
+      form_set_error($logo_size, t('Wrong picture size format!'));
+    }
   }
 
   $header = explode('<br />', nl2br( str_replace('<br>', '<br />', $form_state['values']['h_txt']) ) );
@@ -422,17 +431,16 @@ function webform2pdf_admin_settings_validate($form, &$form_state) {
 } // function webform2pdf_admin_settings_validate()
 
 /*
- * webform2pdf_admin_settings_submit: implementation of submit hook
+ * webform2pdf_admin_settings_submit: Implements submit hook
  */
 function webform2pdf_admin_settings_submit($form, &$form_state) {
   // File deleted.
   foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
     if ( isset($form_state['values'][$logo . '_del']) ) {
       if ( $form_state['values'][$logo . '_del'] ) {
-        if ( (_webform2pdf_use_file($form_state['values'][$logo])-1) == 0) {
-          $logo_file = _webform2pdf_get_file($form_state['values'][$logo]);
-          file_delete($logo_file->filepath);
-        }
+        $logo_file = file_load($form_state['values'][$logo]);
+        file_usage_delete($logo_file, 'webform2pdf', $logo, 1);
+        file_delete($logo_file);
         $form_state['values'][$logo] = 0;
       }
     }
@@ -446,9 +454,18 @@ function webform2pdf_admin_settings_submit($form, &$form_state) {
         'file_validate_image_resolution' => array($form_state['values'][$logo . '_size']),
       );
 
-      if ( $file = file_save_upload($logo . '_file', $validators, file_directory_path() ) ) {
-        file_set_status($file, FILE_STATUS_PERMANENT);
-        $form_state['values'][$logo] = $file->fid;
+
+      if ( $file = file_save_upload($logo . '_file', $validators ) ) {
+        $webform2pdf_directory =  file_default_scheme() . '://' . 'webform2pdf';
+        // Prepare the pictures directory.
+        file_prepare_directory($webform2pdf_directory, FILE_CREATE_DIRECTORY);
+        $destination = file_stream_wrapper_uri_normalize($webform2pdf_directory);
+        if ($file = file_move($file, $destination, FILE_EXISTS_RENAME)) {
+          $file->status |= FILE_STATUS_PERMANENT;
+          $file = file_save($file);
+          file_usage_add($file, 'webform2pdf', $logo, 1);
+          $form_state['values'][$logo] = $file->fid;
+        }
       }
     }
   }
@@ -460,18 +477,63 @@ function webform2pdf_admin_settings_submit($form, &$form_state) {
     'op', 'submit', 'form_build_id', 'form_token', 'form_id') as $del) {
     unset($save[$del]);
   }
+  $save['p_body'] = $form_state['values']['p_body']['value'];
+  $save['format'] = $form_state['values']['p_body']['format'];
 
   variable_set('webform2pdf_default', $save);
 } // function webform2pdf_admin_settings_submit()
 
+function theme_webform2pdf_token_help($variables) {
+  $variables['tokens'] += array('selected' => array(
+    'title' => t('Selected elements'),
+    'tokens' => array(
+      '%label_nl[' . t('key') . ']' => t('Modifier outputs all of the selected options: one below the other. Outputs labels (questions) above options.'),
+      '%label_all[' . t('key') . ']' => t('Lists every option, and highlights which were selected from them. Outputs labels (questions) above options.'),
+      '%label_all_nl[' . t('key') . ']' => t('Lists all of the options in separate lines, and highlights selected ones. Outputs labels (questions) above options.'),
+      '%nl[' . t('key') . ']' => t('Modifier outputs all of the selected options: one below the other.'),
+      '%all[' . t('key') . ']' => t('Lists every option, and highlights which were selected from them.'),
+      '%all_nl[' . t('key') . ']' => t('Lists all of the options in separate lines, and highlights selected ones.'),
+    ),
+    'description' => t('Select form elements can be outputted in different ways, write one of the following strings after the element name to choose from them.'),
+  ));
+
+  $variables['tokens'] += array('pdf' => array(
+    'title' => t('PDF tokens'),
+    'tokens' => array(
+      '%pagebreak' => t('Page break.'),
+    ),
+  ));
+
+  $output = '';
+  foreach ($variables['tokens'] as $group_name => $group) {
+    if (!is_array($variables['groups']) || in_array($group_name, $variables['groups'])) {
+      $items = array();
+      foreach ($group['tokens'] as $token => $token_description) {
+        $items[] = $token . ' - ' . $token_description;
+      }
+      $output .= theme('item_list', array('items' => $items, 'title' => $group['title']));
+      $output .= isset($group['description']) ? '<p>' . $group['description']  . '</p>' : '';
+    }
+  }
+
+  $token_values = theme('webform_token_help', array('groups' => $variables['groups']));
+  return str_replace('</div></div></fieldset>', $output . '</div></div></fieldset>', $token_values);
+}
+
 /**
  * Overview form of all components for this webform.
  */
-function webform2pdf_edit_form($form_state, $node) {
-  $form = array();
+function webform2pdf_edit_form($form, &$form_state, $node) {
+  $default = db_select('webform2pdf', 'w2p')
+    ->fields('w2p')
+    ->condition('nid', $node->nid,'=')
+    ->condition('enabled', 1,'=')
+    ->execute()
+    ->fetchAssoc();
 
-  $result = db_query("SELECT * FROM {webform2pdf} WHERE nid = %d AND enabled = 1", $node->nid);
-  $default = db_fetch_array($result);
+  if (!$default) {
+    $default['enabled'] = 0;
+  }
 
   $form['enabled'] = array(
     '#default_value' => $default['enabled'],
@@ -583,12 +645,17 @@ function webform2pdf_edit_form($form_state, $node) {
     );
 
     if ($default['h_left_logo']) {
-      $logo_file = _webform2pdf_get_file($default['h_left_logo']);
+      $logo_file = file_load($default['h_left_logo']);
 
+      $picture = array(
+        'path'=> $logo_file->uri,
+        'alt' => 'Header left logo.',
+        'title' => $logo_file->filename,
+      );
       $form['header']['h_left_logo_img'] = array(
         '#type' => 'item',
         '#title' => t('Logo on the left side'),
-        '#value' => theme('image', $logo_file->filepath, 'Header left logo.', $logo_file->filename),
+        '#markup' => theme('image', $picture),
       );
       $form['header']['h_left_logo_del'] = array(
         '#type' => 'checkbox',
@@ -657,12 +724,17 @@ function webform2pdf_edit_form($form_state, $node) {
     );
 
     if ($default['h_right_logo']) {
-      $logo_file = _webform2pdf_get_file($default['h_right_logo']);
+      $logo_file = file_load($default['h_right_logo']);
+      $picture = array(
+        'path'=> $logo_file->uri,
+        'alt' => 'Header right logo.',
+        'title' => $logo_file->filename,
+      );
 
       $form['header']['h_right_logo_img'] = array(
         '#type' => 'item',
         '#title' => t('Logo on the right side'),
-        '#value' => theme('image', $logo_file->filepath, 'Header right logo.', $logo_file->filename),
+        '#markup' => theme('image', $picture),
       );
       $form['header']['h_right_logo_del'] = array(
         '#type' => 'checkbox',
@@ -687,19 +759,16 @@ function webform2pdf_edit_form($form_state, $node) {
       '#collapsed' => TRUE,
     );
 
-    $tokens = _webform2pdf_list_template_vars($node);
-    array_unshift($tokens, '%pagebreak');
-
     $form['page']['p_body'] = array(
-      '#type' => 'textarea',
+      '#type' => 'text_format',
+      '#base_type' => 'textarea',
       '#title' => t('Page body'),
+      '#format' => isset($default['format']) ? $default['format'] : NULL,
       '#rows' => '10',
       '#default_value' => $default['p_body'],
-      '#description' => t("The content of the PDF file can be defined here, the text can be formatted with HTML and CSS tags. The form elements can be referred with the following special strings: !vars. Select form elements can be outputted in different ways, write one of the following strings after the element name to choose from them: '-nl', '-all', '-nl-all'. '-nl ' modifier writes every selected element into a new line, '-all' lists every option, and marks which were selected from them. '-nl-all' lists all of the options in separate lines, and marks selected ones."
-      , array('!vars' => implode(', ', $tokens ))) . theme('webform_token_help'),
+      '#description' => t("The content of the PDF file can be defined here, the text can be formatted with HTML and CSS tags.") .
+        theme('webform2pdf_token_help', array('groups' => array('basic', 'node', 'special', 'email', 'submission', 'selected', 'pdf'))),
     );
-
-    $form['page']['format'] = filter_form($default['format']);
 
     $form['page']['p_txt_align'] = array(
       '#type' => 'select',
@@ -752,12 +821,17 @@ function webform2pdf_edit_form($form_state, $node) {
     );
 
     if ($default['f_left_logo']) {
-      $logo_file = _webform2pdf_get_file($default['f_left_logo']);
+      $logo_file = file_load($default['f_left_logo']);
 
+      $picture = array(
+        'path'=> $logo_file->uri,
+        'alt' => 'Footer left logo.',
+        'title' => $logo_file->filename,
+      );
       $form['footer']['f_left_logo_img'] = array(
         '#type' => 'item',
         '#title' => t('Logo on the left side'),
-        '#value' => theme('image', $logo_file->filepath, 'Footer left logo.', $logo_file->filename),
+        '#markup' => theme('image', $picture),
       );
       $form['footer']['f_left_logo_del'] = array(
         '#type' => 'checkbox',
@@ -826,12 +900,18 @@ function webform2pdf_edit_form($form_state, $node) {
     );
 
     if ($default['f_right_logo']) {
-      $logo_file = _webform2pdf_get_file($default['f_right_logo']);
+      $logo_file = file_load($default['f_right_logo']);
+
+      $picture = array(
+        'path'=> $logo_file->uri,
+        'alt' => 'Footer right logo.',
+        'title' => $logo_file->filename,
+      );
 
       $form['footer']['f_right_logo_img'] = array(
         '#type' => 'item',
         '#title' => t('Logo on the right side'),
-        '#value' => theme('image', $logo_file->filepath, 'Footer right logo.', $logo_file->filename),
+        '#markup' => theme('image', $picture),
       );
       $form['footer']['f_right_logo_del'] = array(
         '#type' => 'checkbox',
@@ -874,10 +954,10 @@ function webform2pdf_edit_form($form_state, $node) {
 } // function webform2pdf_edit_form()
 
 /*
- * webform2pdf_edit_form_validate: implementation of validate hook
+ * webform2pdf_edit_form_validate: Implements validate hook
  */
 function webform2pdf_edit_form_validate($form, &$form_state) {
-  if ($form_state['values']['op'] == t('Submit')) {
+  if ($form_state['values']['op'] == t('Submit') && isset($form_state['values']['h_txt'])) {
     $header = explode('<br />', nl2br( str_replace('<br>', '<br />', $form_state['values']['h_txt']) ) );
 
     if ( count($header) > 5) {
@@ -892,15 +972,14 @@ function webform2pdf_edit_form_validate($form, &$form_state) {
 } // function webform2pdf_edit_form_validate()
 
 /*
- * webform2pdf_edit_form_submit: implementation of submit hook
+ * webform2pdf_edit_form_submit: Implements submit hook
  */
 function webform2pdf_edit_form_submit($form, &$form_state) {
   $webform2pdf_default = variable_get('webform2pdf_default', '');
 
   if ($form_state['values']['op'] == t('Submit')) {
-    $update['enabled'] = $form_state['values']['enabled'];
     $update['pdf_send_email'] = $form_state['values']['pdf_send_email'];
-    $update['no_send_email_addr'] = serialize($form_state['values']['no_send_email_addr']);
+    $update['no_send_email_addr'] = isset($form_state['values']['no_send_email_addr']) ? serialize($form_state['values']['no_send_email_addr']) : '';
     $update['page_format'] = $form_state['values']['page_format'];
     $update['page_orientation'] = $form_state['values']['page_orientation'];
     $update['h_left_logo'] = $form_state['values']['h_left_logo'];
@@ -918,18 +997,16 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
     $update['f_font_family'] = $form_state['values']['f_font_family'];
     $update['h_txt'] = $form_state['values']['h_txt'];
     $update['f_txt'] = $form_state['values']['f_txt'];
-    $update['p_body'] = $form_state['values']['p_body'];
-    $update['format'] = $form_state['values']['format'];
-    $update['nid'] = $form_state['values']['nid'];
+    $update['p_body'] = $form_state['values']['p_body']['value'];
+    $update['format'] = $form_state['values']['p_body']['format'];
 
     // Image file deleted.
     foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
       if ( isset($form_state['values'][$logo . '_del']) ) {
         if ( $form_state['values'][$logo . '_del'] ) {
-          if ( (_webform2pdf_use_file($form_state['values'][$logo])-1) == 0) {
-            $logo_file = _webform2pdf_get_file($form_state['values'][$logo]);
-            file_delete($logo_file->filepath);
-          }
+          $logo_file = file_load($form_state['values'][$logo]);
+          file_usage_delete($logo_file, 'webform2pdf', $logo, 1);
+          file_delete($logo_file);
           $update[$logo] = 0;
         }
       }
@@ -943,16 +1020,24 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
           'file_validate_image_resolution' => array($webform2pdf_default[$logo . '_size']),
         );
 
-        if ( $file = file_save_upload($logo . '_file', $validators, file_directory_path() ) ) {
-          file_set_status($file, FILE_STATUS_PERMANENT);
-          $update[$logo] = $file->fid;
+        if ( $file = file_save_upload($logo . '_file', $validators ) ) {
+          $webform2pdf_directory =  file_default_scheme() . '://' . 'webform2pdf';
+          // Prepare the pictures directory.
+          file_prepare_directory($webform2pdf_directory, FILE_CREATE_DIRECTORY);
+          $destination = file_stream_wrapper_uri_normalize($webform2pdf_directory);
+          if ($file = file_move($file, $destination, FILE_EXISTS_RENAME)) {
+            $file->status |= FILE_STATUS_PERMANENT;
+            $file = file_save($file);
+            file_usage_add($file, 'webform2pdf', $logo, 1);
+            $update[$logo] = $file->fid;
+          }
         }
       }
     }
   }
   elseif ($form_state['values']['op'] == t('Reset to defaults')) {
-    $update['enabled'] = $form_state['values']['enabled'];
     $update['pdf_send_email'] = $webform2pdf_default['pdf_send_email'];
+    $update['no_send_email_addr'] = '';
     $update['page_format'] = $webform2pdf_default['page_format'];
     $update['page_orientation'] = $webform2pdf_default['page_orientation'];
     $update['h_left_logo'] = $webform2pdf_default['h_left_logo'];
@@ -972,26 +1057,45 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
     $update['f_txt'] = $webform2pdf_default['f_txt'];
     $update['p_body'] = $webform2pdf_default['p_body'];
     $update['format'] = $webform2pdf_default['format'];
-    $update['nid'] = $form_state['values']['nid'];
 
     // Image file deleted.
     foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
-      if ( (_webform2pdf_use_file($form_state['values'][$logo])-1) == 0) {
-        $logo_file = _webform2pdf_get_file($form_state['values'][$logo]);
-        file_delete($logo_file->filepath);
+      $logo_file = file_load($form_state['values'][$logo]);
+      if ($logo_file) {
+        file_usage_delete($logo_file, 'webform2pdf', $logo, 1);
+        file_delete($logo_file);
       }
     }
   }
-
   // update settings
-  $SQL = "UPDATE {webform2pdf} SET enabled = %d, pdf_send_email = %d, no_send_email_addr = '%s'";
-  $SQL .= ", page_format = '%s', page_orientation = '%s', h_left_logo = %d, h_right_logo = %d";
-  $SQL .= ", f_left_logo = %d, f_right_logo = %d, h_font_size = %d, p_font_size = %d";
-  $SQL .= ", f_font_size = %d, h_txt_align = '%s', h_font_family = '%s'";
-  $SQL .= ", p_txt_align = '%s', p_font_family = '%s', f_txt_align = '%s', f_font_family = '%s'";
-  $SQL .= ", h_txt = '%s', f_txt = '%s', p_body = '%s', format = %d";
-  $SQL .= " WHERE nid = %d";
-  db_query($SQL, $update);
+  db_update('webform2pdf')
+    ->fields(array(
+      'enabled' => $form_state['values']['enabled'],
+      'pdf_send_email' => $update['pdf_send_email'],
+      'no_send_email_addr' => $update['no_send_email_addr'],
+      'page_format' => $update['page_format'],
+      'page_orientation' => $update['page_orientation'],
+      'h_left_logo' => $update['h_left_logo'],
+      'h_right_logo' => $update['h_right_logo'],
+      'f_left_logo' => $update['f_left_logo'],
+      'f_right_logo' => $update['f_right_logo'],
+      'h_font_size' => $update['h_font_size'],
+      'p_font_size' => $update['p_font_size'],
+      'f_font_size' => $update['f_font_size'],
+      'h_txt_align' => $update['h_txt_align'],
+      'h_font_family' => $update['h_font_family'],
+      'p_txt_align' => $update['p_txt_align'],
+      'p_font_family' => $update['p_font_family'],
+      'f_txt_align' => $update['f_txt_align'],
+      'f_font_family' => $update['f_font_family'],
+      'h_txt' => $update['h_txt'],
+      'f_txt' => $update['f_txt'],
+      'p_body' => $update['p_body'],
+      'format' => $update['format'],
+    ))
+    ->condition('nid', $form_state['values']['nid'],'=')
+    ->execute();
+
 } // function webform2pdf_edit_form_submit()
 
 /*
@@ -999,28 +1103,50 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
  */
 function webform2pdf_enable_edit_form_submit($form, &$form_state) {
   if ($form_state['values']['enabled']) {
-    $result = db_query("SELECT * FROM {webform2pdf} WHERE nid = %d", $form_state['values']['nid']);
-    $row = db_fetch_array($result);
+    $row = db_select('webform2pdf', 'w2p')
+      ->fields('w2p')
+      ->condition('nid', $form_state['values']['nid'],'=')
+      ->execute()
+      ->fetchAssoc();
+
     if ($row['nid']) {
-      $SQL = "UPDATE {webform2pdf} SET enabled = %d WHERE nid = %d";
-      db_query($SQL, $form_state['values']['enabled'], $form_state['values']['nid']);
+      db_update('webform2pdf')
+        ->fields(array(
+          'enabled' => $form_state['values']['enabled'],
+        ))
+        ->condition('nid', $form_state['values']['nid'],'=')
+        ->execute();
     }
     else {
       $default = variable_get('webform2pdf_default', '');
-      unset($default['h_left_logo_size'], $default['h_right_logo_size'], $default['f_left_logo_size'], $default['f_right_logo_size']);
 
-      $SQL = "INSERT INTO {webform2pdf} (nid, enabled, download, pdf_send_email, page_format, page_orientation,";
-      $SQL .= " h_left_logo, h_right_logo, f_left_logo, f_right_logo, h_font_size, p_font_size, f_font_size,";
-      $SQL .= " h_txt_align, h_font_family, p_txt_align, p_font_family, f_txt_align, f_font_family, h_txt,";
-      $SQL .= " f_txt, p_body, format) VALUES (%d, %d, %d, %d, '%s', '%s', %d, %d, %d, %d,";
-      $SQL .= " %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)";
-      db_query($SQL, $form_state['values']['nid'], $form_state['values']['enabled'], $default['download']
-      , $default['pdf_send_email'], $default['page_format'], $default['page_orientation']
-      , $default['h_left_logo'], $default['h_right_logo'], $default['f_left_logo'], $default['f_right_logo']
-      , $default['h_font_size'], $default['p_font_size'], $default['f_font_size'], $default['h_txt_align']
-      , $default['h_font_family'], $default['p_txt_align'], $default['p_font_family'], $default['f_txt_align']
-      , $default['f_font_family'], $default['h_txt'], $default['f_txt'], $default['p_body'], $default['format']);
+      db_insert('webform2pdf')
+        ->fields(array(
+          'nid' => $form_state['values']['nid'],
+          'enabled' => $form_state['values']['enabled'],
+//          'download' => $default['download'],
+          'pdf_send_email' => $default['pdf_send_email'],
+          'page_format' => $default['page_format'],
+          'page_orientation' => $default['page_orientation'],
+          'h_left_logo' => $default['h_left_logo'],
+          'h_right_logo' => $default['h_right_logo'],
+          'f_left_logo' => $default['f_left_logo'],
+          'f_right_logo' => $default['f_right_logo'],
+          'h_font_size' => $default['h_font_size'],
+          'p_font_size' => $default['p_font_size'],
+          'f_font_size' => $default['f_font_size'],
+          'h_txt_align' => $default['h_txt_align'],
+          'h_font_family' => $default['h_font_family'],
+          'p_txt_align' => $default['p_txt_align'],
+          'p_font_family' => $default['p_font_family'],
+          'f_txt_align' => $default['f_txt_align'],
+          'f_font_family' => $default['f_font_family'],
+          'h_txt' => $default['h_txt'],
+          'f_txt' => $default['f_txt'],
+          'p_body' => $default['p_body'],
+          'format' => $default['format'],
+        ))
+        ->execute();
     }
   }
 } // function webform2pdf_enable_edit_form_submit()
-

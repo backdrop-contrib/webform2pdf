@@ -1,44 +1,60 @@
 <?php
 /*
  * webform2pdf_submission_download_pdf: download submission as one PDF file
+ * $output_type: Suported type: 'I', 'D', 'S' ( http://www.tcpdf.org/doc/classTCPDF.html#a3d6dcb62298ec9d42e9125ee2f5b23a1 )
  */
 function webform2pdf_submission_download_pdf($node, $submission, $output_type = 'I') {
   $output_types = array('I', 'D', 'S');
 
   if ( in_array($output_type, $output_types) ) {
-    $tokens = _webform2pdf_get_template_vars($node, $submission);
     $template = _webform2pdf_get_template($node->nid);
 
-    $pdf = theme('webform2pdf_pdf_init', $node, $template);
+    $pdf = theme('webform2pdf_pdf_init', array('node' => $node, 'template' => $template));
     if ( !empty($pdf) ) {
-      $pdf = theme('webform2pdf_pdf_header', $pdf, $node, $template);
-      $pdf = theme('webform2pdf_pdf_footer', $pdf, $node, $template);
-      $pdf = theme('webform2pdf_pdf_page', $pdf);
+      $pdf = theme('webform2pdf_pdf_header', array('pdf' => $pdf, 'node' => $node, 'template' => $template));
+      $pdf = theme('webform2pdf_pdf_footer', array('pdf' => $pdf, 'node' => $node, 'template' => $template));
+      $pdf = theme('webform2pdf_pdf_page', array('pdf' => $pdf));
 
       // initialize document
       $pdf->AliasNbPages();
 
-      $template['pages'] = explode('%pagebreak', $template['p_body']);
+      $page = theme('webform2pdf_content', array('node' => $node, 'submission' => $submission, 'template' => $template));
 
-      foreach ($template['pages'] as $key => $page) {
-        $template['pages'][$key] = strtr($page, $tokens);
-      }
+      $template['pages'] = explode('%pagebreak', $page);
 
-      $pdf = theme('webform2pdf_pdf_content', $pdf, $node, $template, $tokens);
+      $pdf = theme('webform2pdf_pdf_content', array('pdf' => $pdf, 'node' => $node, 'template' => $template));
 
       // reset pointer to the last page
       $pdf->lastPage();
 
-      $filename = theme('webform2pdf_filename', $node, $submission);
+      $filename = theme('webform2pdf_filename', array('node' => $node, 'submission' => $submission));
 
-      if ( $output_type == 'S') {
-        return $pdf->Output($filename, $output_type);
+      switch ($output_type) {
+        case 'S':
+          return $pdf->Output($filename, 'S');
+        break;
+
+        case 'I':
+          // http header
+          drupal_add_http_header('Content-Type', 'application/pdf');
+          drupal_add_http_header('Cache-Control', 'public, must-revalidate, max-age=0'); // HTTP/1.1
+          drupal_add_http_header('Pragma', 'public');
+          drupal_add_http_header('Content-Disposition', 'inline; filename="' . $filename . '";');
+        break;
+
+        case 'D':
+          drupal_add_http_header('Content-Description', 'File Transfer');
+          drupal_add_http_header('Cache-Control', 'public, must-revalidate, max-age=0'); // HTTP/1.1
+          drupal_add_http_header('Pragma', 'public');
+          drupal_add_http_header('Content-Type', 'application/pdf');
+
+          // use the Content-Disposition header to supply a recommended filename
+          drupal_add_http_header('Content-Disposition', 'attachment; filename="' . $filename . '";');
+          drupal_add_http_header('Content-Transfer-Encoding', 'binary');
+        break;
       }
-      else {
-        // Close and output PDF document
-        $pdf->Output($filename, $output_type);
-        die;
-      }
+      // Close and output PDF document
+      die($pdf->Output($filename, 'S'));
     }
   }
 } // function webform2pdf_submission_download_pdf()
@@ -46,26 +62,41 @@ function webform2pdf_submission_download_pdf($node, $submission, $output_type = 
 /*
  * _webform2pdf_download_pdf_form: Creates a form, where the submissions can be downloaded in PDF format
  */
-function webform2pdf_download_pdf_form(&$form_state, $node) {
-  module_load_include('inc', 'webform', 'webform.report');
-  $header = theme('webform_results_submissions_header', $node);
+function webform2pdf_download_pdf_form($form, &$form_state, $node) {
+  global $user;
+  module_load_include('inc', 'webform', 'includes/webform.submissions');
+
+  $header = theme('webform_results_submissions_header', array('node' => $node));
   $submissions = webform_get_submissions($node->nid, $header);
 
-  $form = $options = array();
+  $operation_column = end($header);
+  $operation_total = $operation_column['colspan'];
+
+  $rows = array();
   foreach ($submissions as $sid => $submission) {
-    $form['sid'][$sid] = array('#value' => $sid);
-    $form['date'][$sid] = array('#value' => format_date($submission->submitted, 'small'));
-    $form['username'][$sid] = array('#value' => theme('username', $submission));
-    $form['remote_addr'][$sid] = array('#value' => $submission->remote_addr);
-    $form['view'][$sid] = array('#value' => l(t('View'), "node/$node->nid/submission/$sid"));
-    $form['download_pdf'][$sid] = array('#value' => l(t('Download PDF'), "node/$node->nid/submission/$sid/downloadpdf"));
-    $options[$sid] = '';
+    $row = array(
+      $submission->is_draft ? t('@sid (draft)', array('@sid' => $sid)) : $sid,
+      format_date($submission->submitted, 'small'),
+    );
+    if (webform_results_access($node, $user)) {
+      $row[] = theme('username', array('account' => $submission));
+      $row[] = $submission->remote_addr;
+    }
+    $row[] = l(t('View'), "node/$node->nid/submission/$sid");
+    $row[] = array('data' => l(t('Download PDF'), "node/$node->nid/submission/$sid/downloadpdf"));
+    // D7 BUG a colspan opciot nem figyeli a tableselect igy nem latszik a downloadpdf link
+
+    $operation_count = 2;
+    if ($operation_count < $operation_total) {
+      $row[count($row) - 1] += array('colspan' => $operation_total - $operation_count + 1);
+    }
+    $rows[$sid] = $row;
   }
 
-  $form['sids'] = array(
-    '#type' => 'checkboxes',
-    '#options' => $options,
-  );
+  $form['submissions']['#type'] = 'tableselect';
+  $form['submissions']['#header'] = $header;
+  $form['submissions']['#options'] = $rows;
+  $form['submissions']['#empty'] = t('There are no submissions for this form. <a href="!url">View this form</a>.', array('!url' => url('node/' . $node->nid)));;
 
   $form['nid'] = array(
     '#type' => 'value',
@@ -81,77 +112,50 @@ function webform2pdf_download_pdf_form(&$form_state, $node) {
 } // function webform2pdf_download_pdf_form()
 
 /*
- * theme_webform2pdf_download_pdf_form: webform2pdf_download_pdf_form of theme hook
- */
-function theme_webform2pdf_download_pdf_form($form) {
-  $output = '';
-  $header = theme('webform_results_submissions_header', $node);
-  $hc = theme('table_select_header_cell');
-  array_unshift($header, $hc );
-  $rows = array();
-  foreach ($form['sids']['#options'] as $sid => $empty) {
-    $row = array();
-    $row[] = array('data' => drupal_render($form['sids'][$sid]), 'class' => 'checkbox' );
-    $row[] = array('data' => drupal_render($form['sid'][$sid]) );
-    $row[] = array('data' => drupal_render($form['date'][$sid]) );
-    $row[] = array('data' => drupal_render($form['username'][$sid]) );
-    $row[] = array('data' => drupal_render($form['remote_addr'][$sid]) );
-    $row[] = array('data' => drupal_render($form['view'][$sid]) );
-    $row[] = array('data' => drupal_render($form['download_pdf'][$sid]) );
-    $rows[] = $row;
-  }
-  $output .= theme('table', $header, $rows);
-  $output .= drupal_render($form);
-
-  return $output;
-} // function theme_webform2pdf_download_pdf_form()
-
-/*
  * webform2pdf_download_pdf_form_submit: webform2pdf_download_pdf_form of submit hook
  */
 function webform2pdf_download_pdf_form_submit($form, &$form_state) {
   // filter zero values
-  $form_state['values']['sids'] = array_filter($form_state['values']['sids']);
+  $form_state['values']['submissions'] = array_filter($form_state['values']['submissions']);
 
   // If there is a selected form element
-  if (count($form_state['values']['sids'])) {
+  if (count($form_state['values']['submissions'])) {
     // call header generator
-    $header = theme('webform_results_submissions_header', $node);
-
-    $submissions = _webform2pdf_get_submissions($form_state['values']['nid'], $header, $form_state['values']['sids']);
     $node = node_load($form_state['values']['nid']);
+
+    $header = theme('webform_results_submissions_header', array('node' => $node));
+    $submissions = _webform2pdf_get_submissions($form_state['values']['nid'], $header, $form_state['values']['submissions']);
     $template = _webform2pdf_get_template($node->nid);
 
-    $tokens = array();
-    foreach ($submissions as $key => $submission) {
-      $tokens[$key] = _webform2pdf_get_template_vars($node, $submission);
-    }
-
-    $pdf = theme('webform2pdf_pdf_init', $node, $template);
-    $pdf = theme('webform2pdf_pdf_header', $pdf, $node, $template);
-    $pdf = theme('webform2pdf_pdf_footer', $pdf, $node, $template);
-    $pdf = theme('webform2pdf_pdf_page', $pdf);
+    $pdf = theme('webform2pdf_pdf_init', array('node' => $node, 'template' => $template));
+    $pdf = theme('webform2pdf_pdf_header', array('pdf' => $pdf, 'node' => $node, 'template' => $template));
+    $pdf = theme('webform2pdf_pdf_footer', array('pdf' => $pdf, 'node' => $node, 'template' => $template));
+    $pdf = theme('webform2pdf_pdf_page', array('pdf' => $pdf));
 
     // initialize document
     $pdf->AliasNbPages();
 
-    // Inserts every token value into the template
-    foreach ($tokens as $key => $token) {
-      $pages[$key] = strtr($template['p_body'], $token);
+    foreach ($submissions as $key => $submission) {
+      $pages[$key] = theme('webform2pdf_content', array('node' => $node, 'submission' => $submission, 'template' => $template));
     }
 
     $template['pages'] = implode('%pagebreak', $pages);
     $template['pages'] = explode('%pagebreak', $template['pages']);
 
-    $pdf = theme('webform2pdf_pdf_content', $pdf, $node, $template, $tokens);
+    $pdf = theme('webform2pdf_pdf_content', array('pdf' => $pdf, 'node' => $node, 'template' => $template));
 
     // reset pointer to the last page
     $pdf->lastPage();
-    $filename = theme('webform2pdf_filename', $node, time());
+    $filename = theme('webform2pdf_filename', array('node' => $node, 'submission' => time()));
+
+    // http header
+    drupal_add_http_header('Content-Type', 'application/pdf');
+    drupal_add_http_header('Cache-Control', 'public, must-revalidate, max-age=0'); // HTTP/1.1
+    drupal_add_http_header('Pragma', 'public');
+    drupal_add_http_header('Content-Disposition', 'inline; filename="' . $filename . '";');
 
     // Close and output PDF document
-    $pdf->Output($filename, 'I');
-    die;
+    die($pdf->Output($filename, 'S'));
   }
 } // function webform2pdf_download_pdf_form_submit()
 

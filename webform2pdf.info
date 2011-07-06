@@ -1,5 +1,11 @@
 name = WebForm 2 PDF
 description = Generates PDF documents from the submitted webforms.
-core = 6.x
+core = 7.x
 package = Webform
 dependencies[] = webform
+
+configure = admin/config/content/webform2pdf
+
+; Files that contain classes:
+files[] = includes/webform2pdf.download.inc
+files[] = includes/webform2pdf.settings.inc
