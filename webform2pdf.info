@@ -3,6 +3,7 @@ description = Generates PDF documents from the submitted webforms.
 core = 7.x
 package = Webform
 dependencies[] = webform
+dependencies[] = libraries
 
 configure = admin/config/content/webform2pdf
 

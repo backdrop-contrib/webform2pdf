@@ -14,14 +14,6 @@ function webform2pdf_admin_settings($form, &$form_state) {
     '#collapsed' => TRUE,
   );
 
-  $form['base']['pdf_lib'] = array(
-    '#type' => 'textfield',
-    '#title' => t('PDF library path'),
-    '#default_value' => $default['pdf_lib'],
-    '#required' => TRUE,
-    '#description' => t('Please enter the path of the TCPDF library. Example: sites/all/libraries/tcpdf'),
-  );
-
   $form['base']['pdf_send_email'] = array(
     '#type' => 'checkbox',
     '#title' => t('Attach PDF as an attachment to the e-mails sent to the form recipients.'),
@@ -408,10 +400,6 @@ function webform2pdf_admin_settings($form, &$form_state) {
  * webform2pdf_admin_settings_validate: Implements validate hook
  */
 function webform2pdf_admin_settings_validate($form, &$form_state) {
-  if ( !is_file($form_state['values']['pdf_lib'] . '/tcpdf.php')   ) {
-    form_set_error('pdf_lib', t('Not found TCPDF library: %dir!', array('%dir' => $form_state['values']['pdf_lib'] . '/tcpdf.php') ));
-  }
-
   foreach (array('h_left_logo_size', 'h_right_logo_size', 'f_left_logo_size', 'f_right_logo_size') as $logo_size) {
     if ( !preg_match("/^\d+x\d+$/", $form_state['values'][$logo_size]) ) {
       form_set_error($logo_size, t('Wrong picture size format!'));
