@@ -541,6 +541,8 @@ function _webform2pdf_filter_values($string, $node, $submission) {
       }
     }
   }
+  drupal_alter('webform2pdf_tokens', $tokens, $node, $submission);
+
   return strtr($string, $tokens);
 }
 
