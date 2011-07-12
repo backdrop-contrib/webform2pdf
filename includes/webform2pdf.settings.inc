@@ -1,5 +1,10 @@
 <?php
 /**
+ * @file
+ * Webform to PDF settings form.
+ */
+
+/**
  * Overview form of all components for this webform.
  */
 function webform2pdf_admin_settings($form, &$form_state) {
@@ -108,7 +113,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
     $logo_file = file_load($default['h_left_logo']);
 
     $picture = array(
-      'path'=> $logo_file->uri,
+      'path' => $logo_file->uri,
       'alt' => 'Header left logo.',
       'title' => $logo_file->filename,
     );
@@ -128,7 +133,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
       '#title' => t('Upload left side logo'),
       '#size' => 60,
       '#maxlength' => 250,
-      '#description' => t("Upload left side logo. If the size of the uploaded image is more than !size, it will be resized to this size.", array('!size' => $default['h_left_logo_size'])),
+      '#description' => t("Upload left side logo. If the size of the uploaded image is more than @size, it will be resized to this size.", array('@size' => $default['h_left_logo_size'])),
     );
   }
 
@@ -186,7 +191,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
   if ($default['h_right_logo']) {
     $logo_file = file_load($default['h_right_logo']);
     $picture = array(
-      'path'=> $logo_file->uri,
+      'path' => $logo_file->uri,
       'alt' => 'Header right logo.',
       'title' => $logo_file->filename,
     );
@@ -207,7 +212,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
       '#title' => t('Upload right logo'),
       '#size' => 60,
       '#maxlength' => 250,
-      '#description' => t("Upload right side logo. If the size of the uploaded image is more than !size, it will be resized to this size.", array('!size' => $default['h_right_logo_size'])),
+      '#description' => t("Upload right side logo. If the size of the uploaded image is more than @size, it will be resized to this size.", array('@size' => $default['h_right_logo_size'])),
     );
   }
 
@@ -284,7 +289,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
     $logo_file = file_load($default['f_left_logo']);
 
     $picture = array(
-      'path'=> $logo_file->uri,
+      'path' => $logo_file->uri,
       'alt' => 'Footer left logo.',
       'title' => $logo_file->filename,
     );
@@ -304,7 +309,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
       '#title' => t('Upload left side logo'),
       '#size' => 60,
       '#maxlength' => 250,
-      '#description' => t("Upload left side logo. If the size of the uploaded image is more than !size, it will be resized to this size.", array('!size' => $default['f_left_logo_size'])),
+      '#description' => t("Upload left side logo. If the size of the uploaded image is more than @size, it will be resized to this size.", array('@size' => $default['f_left_logo_size'])),
     );
   }
 
@@ -363,7 +368,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
     $logo_file = file_load($default['f_right_logo']);
 
     $picture = array(
-      'path'=> $logo_file->uri,
+      'path' => $logo_file->uri,
       'alt' => 'Footer right logo.',
       'title' => $logo_file->filename,
     );
@@ -384,13 +389,13 @@ function webform2pdf_admin_settings($form, &$form_state) {
       '#title' => t('Upload right logo'),
       '#size' => 60,
       '#maxlength' => 250,
-      '#description' => t("Upload right side logo. If the size of the uploaded image is more than !size, it will be resized to this size.", array('!size' => $default['f_right_logo_size'])),
+      '#description' => t("Upload right side logo. If the size of the uploaded image is more than @size, it will be resized to this size.", array('@size' => $default['f_right_logo_size'])),
     );
   }
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Submit'),
+    '#value' => t('Save'),
   );
 
   return $form;
@@ -472,25 +477,29 @@ function webform2pdf_admin_settings_submit($form, &$form_state) {
 } // function webform2pdf_admin_settings_submit()
 
 function theme_webform2pdf_token_help($variables) {
-  $variables['tokens'] += array('selected' => array(
-    'title' => t('Selected elements'),
-    'tokens' => array(
-      '%label_nl[' . t('key') . ']' => t('Modifier outputs all of the selected options: one below the other. Outputs labels (questions) above options.'),
-      '%label_all[' . t('key') . ']' => t('Lists every option, and highlights which were selected from them. Outputs labels (questions) above options.'),
-      '%label_all_nl[' . t('key') . ']' => t('Lists all of the options in separate lines, and highlights selected ones. Outputs labels (questions) above options.'),
-      '%nl[' . t('key') . ']' => t('Modifier outputs all of the selected options: one below the other.'),
-      '%all[' . t('key') . ']' => t('Lists every option, and highlights which were selected from them.'),
-      '%all_nl[' . t('key') . ']' => t('Lists all of the options in separate lines, and highlights selected ones.'),
-    ),
-    'description' => t('Select form elements can be outputted in different ways, write one of the following strings after the element name to choose from them.'),
-  ));
+  $variables['tokens'] += array(
+    'selected' => array(
+      'title' => t('Selected elements'),
+      'tokens' => array(
+        '%label_nl[' . t('key') . ']' => t('Modifier outputs all of the selected options: one below the other. Outputs labels (questions) above options.'),
+        '%label_all[' . t('key') . ']' => t('Lists every option, and highlights which were selected from them. Outputs labels (questions) above options.'),
+        '%label_all_nl[' . t('key') . ']' => t('Lists all of the options in separate lines, and highlights selected ones. Outputs labels (questions) above options.'),
+        '%nl[' . t('key') . ']' => t('Modifier outputs all of the selected options: one below the other.'),
+        '%all[' . t('key') . ']' => t('Lists every option, and highlights which were selected from them.'),
+        '%all_nl[' . t('key') . ']' => t('Lists all of the options in separate lines, and highlights selected ones.'),
+      ),
+      'description' => t('Select form elements can be outputted in different ways, write one of the following strings after the element name to choose from them.'),
+    )
+  );
 
-  $variables['tokens'] += array('pdf' => array(
-    'title' => t('PDF tokens'),
-    'tokens' => array(
-      '%pagebreak' => t('Page break.'),
-    ),
-  ));
+  $variables['tokens'] += array(
+    'pdf' => array(
+      'title' => t('PDF tokens'),
+      'tokens' => array(
+        '%pagebreak' => t('Page break.'),
+      ),
+    )
+  );
 
   $output = '';
   foreach ($variables['tokens'] as $group_name => $group) {
@@ -500,7 +509,7 @@ function theme_webform2pdf_token_help($variables) {
         $items[] = $token . ' - ' . $token_description;
       }
       $output .= theme('item_list', array('items' => $items, 'title' => $group['title']));
-      $output .= isset($group['description']) ? '<p>' . $group['description']  . '</p>' : '';
+      $output .= isset($group['description']) ? '<p>' . $group['description'] . '</p>' : '';
     }
   }
 
@@ -514,8 +523,8 @@ function theme_webform2pdf_token_help($variables) {
 function webform2pdf_edit_form($form, &$form_state, $node) {
   $default = db_select('webform2pdf', 'w2p')
     ->fields('w2p')
-    ->condition('nid', $node->nid,'=')
-    ->condition('enabled', 1,'=')
+    ->condition('nid', $node->nid, '=')
+    ->condition('enabled', 1, '=')
     ->execute()
     ->fetchAssoc();
 
@@ -651,7 +660,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     $logo_file = file_load($default['h_left_logo']);
 
     $picture = array(
-      'path'=> $logo_file->uri,
+      'path' => $logo_file->uri,
       'alt' => 'Header left logo.',
       'title' => $logo_file->filename,
     );
@@ -671,7 +680,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
       '#title' => t('Upload left side logo'),
       '#size' => 60,
       '#maxlength' => 250,
-      '#description' => t("Upload left side logo. If the size of the uploaded image is more than !size, it will be resized to this size.", array('!size' => $webform2pdf_default['h_left_logo_size'])),
+      '#description' => t("Upload left side logo. If the size of the uploaded image is more than @size, it will be resized to this size.", array('@size' => $webform2pdf_default['h_left_logo_size'])),
     );
   }
 
@@ -729,7 +738,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
   if ($default['h_right_logo']) {
     $logo_file = file_load($default['h_right_logo']);
     $picture = array(
-      'path'=> $logo_file->uri,
+      'path' => $logo_file->uri,
       'alt' => 'Header right logo.',
       'title' => $logo_file->filename,
     );
@@ -750,7 +759,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
       '#title' => t('Upload right logo'),
       '#size' => 60,
       '#maxlength' => 250,
-      '#description' => t("Upload right side logo. If the size of the uploaded image is more than !size, it will be resized to this size.", array('!size' => $webform2pdf_default['h_right_logo_size'])),
+      '#description' => t("Upload right side logo. If the size of the uploaded image is more than @size, it will be resized to this size.", array('@size' => $webform2pdf_default['h_right_logo_size'])),
     );
   }
 
@@ -837,7 +846,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     $logo_file = file_load($default['f_left_logo']);
 
     $picture = array(
-      'path'=> $logo_file->uri,
+      'path' => $logo_file->uri,
       'alt' => 'Footer left logo.',
       'title' => $logo_file->filename,
     );
@@ -857,7 +866,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
       '#title' => t('Upload left side logo'),
       '#size' => 60,
       '#maxlength' => 250,
-      '#description' => t("Upload left side logo. If the size of the uploaded image is more than !size, it will be resized to this size.", array('!size' => $webform2pdf_default['f_left_logo_size'])),
+      '#description' => t("Upload left side logo. If the size of the uploaded image is more than @size, it will be resized to this size.", array('@size' => $webform2pdf_default['f_left_logo_size'])),
     );
   }
 
@@ -916,7 +925,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     $logo_file = file_load($default['f_right_logo']);
 
     $picture = array(
-      'path'=> $logo_file->uri,
+      'path' => $logo_file->uri,
       'alt' => 'Footer right logo.',
       'title' => $logo_file->filename,
     );
@@ -937,7 +946,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
       '#title' => t('Upload right logo'),
       '#size' => 60,
       '#maxlength' => 250,
-      '#description' => t("Upload right side logo. If the size of the uploaded image is more than !size, it will be resized to this size.", array('!size' => $webform2pdf_default['f_right_logo_size'])),
+      '#description' => t("Upload right side logo. If the size of the uploaded image is more than @size, it will be resized to this size.", array('@size' => $webform2pdf_default['f_right_logo_size'])),
     );
   }
 
@@ -948,7 +957,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Submit'),
+    '#value' => t('Save'),
   );
 
   if (!isset($default['nid'])) {
@@ -994,7 +1003,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
       if ($form_state['values']['enabled']) {
         $row = db_select('webform2pdf', 'w2p')
           ->fields('w2p')
-          ->condition('nid', $form_state['values']['nid'],'=')
+          ->condition('nid', $form_state['values']['nid'], '=')
           ->execute()
           ->fetchAssoc();
 
@@ -1003,7 +1012,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
             ->fields(array(
               'enabled' => $form_state['values']['enabled'],
             ))
-            ->condition('nid', $form_state['values']['nid'],'=')
+            ->condition('nid', $form_state['values']['nid'], '=')
             ->execute();
         }
         else {
@@ -1014,7 +1023,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
               if ( $form_state['values'][$logo . '_del'] ) {
                 $default[$logo] = 0;
               }
-              elseif(!empty($form_state['values'][$logo])) {
+              elseif (!empty($form_state['values'][$logo])) {
                 $default[$logo] = $form_state['values'][$logo];
                 $file = file_load($default[$logo]);
                 file_usage_add($file, 'webform2pdf', $logo, 1);
@@ -1159,12 +1168,12 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
         'p_body' => $update['p_body'],
         'format' => $update['format'],
       ))
-      ->condition('nid', $form_state['values']['nid'],'=')
+      ->condition('nid', $form_state['values']['nid'], '=')
       ->execute();
   }
 } // function webform2pdf_edit_form_submit()
 
- function _webform2pdf_save_logo($logo, $nid) {
+function _webform2pdf_save_logo($logo, $nid) {
   $webform2pdf_default = variable_get('webform2pdf_default', '');
 
   $validators = array(

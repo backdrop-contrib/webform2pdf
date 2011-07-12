@@ -1,4 +1,11 @@
 <?php
+/**
+ * @file
+ * Implemented menu path:
+ * node/%webform_menu/webform-results/downloadpdf
+ * node/%webform_menu/submission/%webform_menu_submission/downloadpdf
+ */
+
 /*
  * webform2pdf_submission_download_pdf: download submission as one PDF file
  * $output_type: Suported type: 'I', 'D', 'S' ( http://www.tcpdf.org/doc/classTCPDF.html#a3d6dcb62298ec9d42e9125ee2f5b23a1 )

@@ -11,8 +11,8 @@ function webform2pdf_enabled_pdf_access() {
 
   $row = db_select('webform2pdf', 'w2p')
     ->fields('w2p', array('enabled'))
-    ->condition('nid', $node->nid,'=')
-    ->condition('enabled', 1,'=')
+    ->condition('nid', $node->nid, '=')
+    ->condition('enabled', 1, '=')
     ->execute()
     ->fetchAssoc();
 
@@ -84,7 +84,7 @@ function webform2pdf_menu() {
 } // function webform2pdf_menu()
 
 /**
- * Implements hook_theme()
+ * Implements hook_theme().
  */
 function webform2pdf_theme() {
   return array(
@@ -123,7 +123,7 @@ function webform2pdf_theme() {
 } // function webform2pdf_theme()
 
 /**
- * Implements hook_help()
+ * Implements hook_help().
  */
 function webform2pdf_help($path, $arg) {
   global $base_url;
