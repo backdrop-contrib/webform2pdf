@@ -979,7 +979,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
  * webform2pdf_edit_form_validate: Implements validate hook
  */
 function webform2pdf_edit_form_validate($form, &$form_state) {
-  if ($form_state['values']['op'] == t('Submit') && isset($form_state['values']['h_txt'])) {
+  if ($form_state['values']['op'] == t('Save') && isset($form_state['values']['h_txt'])) {
     $header = explode('<br />', nl2br( str_replace('<br>', '<br />', $form_state['values']['h_txt']) ) );
 
     if ( count($header) > 5) {
@@ -997,7 +997,7 @@ function webform2pdf_edit_form_validate($form, &$form_state) {
  * webform2pdf_edit_form_submit: Implements submit hook
  */
 function webform2pdf_edit_form_submit($form, &$form_state) {
-  if ($form_state['values']['op'] == t('Submit')) {
+  if ($form_state['values']['op'] == t('Save')) {
     // First enabled
     if (isset($form_state['values']['new'])) {
       if ($form_state['values']['enabled']) {
