@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This menu appears only if 'Generate PDF' option is enabled
  */
@@ -268,15 +267,17 @@ function _webform2pdf_init_tcpdf($node, $template) {
 
   $tcpdf_dir = libraries_get_path('tcpdf');
 
-  define('K_TCPDF_EXTERNAL_CONFIG', TRUE);
-  define('K_PATH_MAIN', dirname($_SERVER['SCRIPT_FILENAME']));
-  define('K_PATH_URL', $base_url);
-  define('K_PATH_FONTS', $tcpdf_dir . '/fonts/');
-  define('K_PATH_CACHE', $tcpdf_dir . '/cache/');
-  define('K_PATH_IMAGES', '');
-  define('K_BLANK_IMAGE', $tcpdf_dir . '/images/_blank.png');
-  define('K_CELL_HEIGHT_RATIO', 1.25);
-  define('K_SMALL_RATIO', 2/3);
+  if (defined('K_TCPDF_EXTERNAL_CONFIG')) {
+    define('K_TCPDF_EXTERNAL_CONFIG', TRUE);
+    define('K_PATH_MAIN', dirname($_SERVER['SCRIPT_FILENAME']));
+    define('K_PATH_URL', $base_url);
+    define('K_PATH_FONTS', $tcpdf_dir . '/fonts/');
+    define('K_PATH_CACHE', $tcpdf_dir . '/cache/');
+    define('K_PATH_IMAGES', '');
+    define('K_BLANK_IMAGE', $tcpdf_dir . '/images/_blank.png');
+    define('K_CELL_HEIGHT_RATIO', 1.25);
+    define('K_SMALL_RATIO', 2/3);
+  }
 
   if ( is_file($tcpdf_dir . '/tcpdf.php')   ) {
     include_once( drupal_get_path('module', 'webform2pdf') . '/webform2pdf.class.inc' );

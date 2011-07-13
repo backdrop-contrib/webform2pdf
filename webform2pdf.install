@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  *   Webform2pdf module install/schema hooks.
