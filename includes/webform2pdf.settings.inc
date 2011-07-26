@@ -979,16 +979,31 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
  * webform2pdf_edit_form_validate: Implements validate hook
  */
 function webform2pdf_edit_form_validate($form, &$form_state) {
-  if ($form_state['values']['op'] == t('Save') && isset($form_state['values']['h_txt'])) {
-    $header = explode('<br />', nl2br( str_replace('<br>', '<br />', $form_state['values']['h_txt']) ) );
-
-    if ( count($header) > 5) {
-      form_set_error('h_txt', t('Up to 5 rows can be set!'));
+  if ($form_state['values']['op'] == t('Save')) {
+    if (!empty($form_state['values']['h_txt'])) {
+      $header = explode('<br />', nl2br( str_replace('<br>', '<br />', $form_state['values']['h_txt']) ) );
+      if ( count($header) > 5) {
+        form_set_error('h_txt', t('Up to 5 rows can be set!'));
+      }
     }
 
-    $footer = explode('<br />', nl2br( str_replace('<br>', '<br />', $form_state['values']['f_txt']) ) );
-    if ( count($footer) > 2) {
-      form_set_error('f_txt', t('Up to 2 rows can be set!'));
+    if (!empty($form_state['values']['f_txt'])) {
+      $footer = explode('<br />', nl2br( str_replace('<br>', '<br />', $form_state['values']['f_txt']) ) );
+      if ( count($footer) > 2) {
+        form_set_error('f_txt', t('Up to 2 rows can be set!'));
+      }
+    }
+
+    if (!(is_numeric($form_state['values']['h_font_size']) && ($form_state['values']['h_font_size'] > 0))) {
+      form_set_error('h_font_size', t('Header font size must be numeric.'));
+    }
+
+    if (!(is_numeric($form_state['values']['p_font_size']) && ($form_state['values']['p_font_size'] > 0))) {
+      form_set_error('p_font_size', t('Content font size must be numeric.'));
+    }
+
+    if (!(is_numeric($form_state['values']['f_font_size']) && ($form_state['values']['f_font_size'] > 0))) {
+      form_set_error('f_font_size', t('Footer font size must be numeric.'));
     }
   }
 } // function webform2pdf_edit_form_validate()
