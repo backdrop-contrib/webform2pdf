@@ -17,7 +17,7 @@ function webform2pdf_install() {
     'h_txt_align' => 'L', 'h_font_family' => 'dejavuserif',
     'p_txt_align' => 'L', 'p_font_family' => 'dejavuserif',
     'f_txt_align' => 'L', 'f_font_family' => 'dejavuserif',
-    'h_txt' => '', 'f_txt' => '', 'p_body' => '', 'format' => 0,
+    'h_txt' => '', 'f_txt' => '', 'p_body' => '%email_values', 'format' => 'filtered_html',
     'h_left_logo_size' => '270x205', 'h_right_logo_size' => '270x205',
     'f_left_logo_size' => '270x56', 'f_right_logo_size' => '270x56',
   ));
@@ -344,6 +344,22 @@ function webform2pdf_update_7300(&$sandbox) {
       return t('Migrated webform to pdf format settings');
     }
   }
+}
+
+/**
+ * Convert the default body filter and body token.
+ */
+function webform2pdf_update_7301() {
+  $default = variable_get('webform2pdf_default', '');
+
+  if (is_numeric($default['format'])) {
+    $default['format'] = 'filtered_html';
+  }
+
+  if (empty($default['p_body'])) {
+    $default['p_body'] = '%email_values';
+  }
+  variable_set('webform2pdf_default', $default);
 }
 
 /**
