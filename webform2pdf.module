@@ -566,7 +566,7 @@ function webform2pdf_mail_alter(&$message) {
         $trenner  = '------------' . md5(uniqid(time()));
 
         $content_type = $message['headers']['Content-Type'];
-        $message['headers']['Content-Type'] = 'multipart/mixed;\n boundary="' . $trenner . '"';
+        $message['headers']['Content-Type'] = 'multipart/mixed; boundary="' . $trenner . '"';
         unset($message['headers']['Content-Transfer-Encoding']);
 
         $body = "\n\n--" . $trenner . "\n" .
