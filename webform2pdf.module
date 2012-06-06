@@ -500,9 +500,11 @@ function _webform2pdf_filter_values($string, $node, $submission) {
 
         foreach ($options as $key => $option) {
           if ( (in_array($option, $values)) || (in_array($key, $values)) ) {
-            $nl[] = ' - ' . $option . "<br />\n";
-            $all[] = '<u><b><span class="selected">' . $option . '</span></b></u>';
-            $nl_all[] = ' [X] ' . $option . "<br />\n";
+            if (!empty($option)) {
+              $nl[] = ' - ' . $option . "<br />\n";
+              $all[] = '<u><b><span class="selected">' . $option . '</span></b></u>';
+              $nl_all[] = ' [X] ' . $option . "<br />\n";
+            }
           }
           else {
             if (!empty($option)) {
