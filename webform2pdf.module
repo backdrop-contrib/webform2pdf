@@ -480,7 +480,7 @@ function _webform2pdf_filter_values($string, $node, $submission) {
   $tokens = array();
   foreach ($node->webform['components'] as $component) {
     if ($component['type'] == 'select') {
-      $values = $submission->data[$component['cid']]['value'];
+      $values = isset($submission->data[$component['cid']]['value']) ? $submission->data[$component['cid']]['value'] : '';
       if ( is_array($values) ) {
         $items = explode("<nl2br>", preg_replace("/(\r\n)+|(\n|\r)+/", "<nl2br>", $component['extra']['items']) );
 
