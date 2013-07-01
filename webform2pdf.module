@@ -137,7 +137,7 @@ function webform2pdf_help($path, $arg) {
 function webform2pdf_send2pdf($node, $submission) {
   $webform2pdf = _webform2pdf_get_template($node->nid);
   $nopdf = array();
-  if ($webform2pdf['enabled'] && $webform2pdf['pdf_send_email']) {
+  if (isset($webform2pdf['enabled']) && $webform2pdf['enabled'] && $webform2pdf['pdf_send_email']) {
     $no_mail = unserialize($webform2pdf['no_send_email_addr']);
 
     if (is_array($no_mail)) {
