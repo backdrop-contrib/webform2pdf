@@ -300,7 +300,7 @@ function webform2pdf_update_7300(&$sandbox) {
 
   // Multi-part update.
   if (!isset($sandbox['webform2pdf_convert'])) {
-    db_change_field('webform2pd', 'format', 'format', array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''));
+    db_change_field('webform2pdf', 'format', 'format', array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''));
     $sandbox['webform2pdf_convert'] = 0;
     $sandbox['webform2pdf_count'] = db_query("SELECT COUNT(nid) FROM {webform2pdf}")->fetchField();
   }
