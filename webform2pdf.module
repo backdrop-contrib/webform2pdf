@@ -479,7 +479,7 @@ function theme_webform2pdf_content($vars) {
 function _webform2pdf_filter_values($string, $node, $submission) {
   $tokens = array();
   foreach ($node->webform['components'] as $component) {
-    if ($component['type'] == 'select') {
+    if (isset($component['type']) && $component['type'] == 'select') {
       $values = isset($submission->data[$component['cid']]['value']) ? $submission->data[$component['cid']]['value'] : '';
       if ( is_array($values) ) {
         $items = explode("<nl2br>", preg_replace("/(\r\n)+|(\n|\r)+/", "<nl2br>", $component['extra']['items']) );
