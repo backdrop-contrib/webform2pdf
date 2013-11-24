@@ -45,17 +45,24 @@ class W2PDF extends TCPDF {
   protected $footer_string_align = array();
 
   /**
+   * path to background image
+   * @var string
+   */
+  protected $background = NULL;
+
+  /**
    * Set header data.
    * @param array $ln header left, right image logo
    * @param array $lw header left, right image logo width in mm
    * @param string $hs string to print on document header
    * @param string $hsa align string to print on document header
    */
-  public function setHeaderData($ln=array(), $ls=array(), $hs='', $hsa='') {
+  public function setHeaderData($ln = array(), $ls = array(), $hs = '', $hsa = '', $background = NULL) {
     $this->header_logo = $ln;
     $this->header_logo_size = $ls;
     $this->header_string = $hs;
     $this->header_string_align = $hsa;
+    $this->background = $background;
   }
 
   /**
@@ -69,6 +76,7 @@ class W2PDF extends TCPDF {
     $ret['logo_size'] = $this->header_logo_size;
     $ret['string'] = $this->header_string;
     $ret['align'] = $this->header_string_align;
+    $ret['background'] = $this->background;
     return $ret;
   }
 
@@ -113,6 +121,21 @@ class W2PDF extends TCPDF {
     $header_w = 0;
 
     $empty_header = 1;
+
+    if ($headerdata['background']) {
+       // get the current page break margin
+      $bMargin = $this->getBreakMargin();
+       // get current auto-page-break mode
+      $auto_page_break = $this->AutoPageBreak;
+       // disable auto-page-break
+      $this->SetAutoPageBreak(false, 0);
+       //Image($file, $x='', $y='', $w=0, $h=0, $type='', $link='', $align='', $resize=false, $dpi=300, $palign='', $ismask=false, $imgmask=false, $border=0, $fitbox=false, $hidden=false, $fitonpage=false, $alt=false, $altimgs=array())
+      $this->Image($headerdata['background'], 0, 0, $this->w, $this->h, '', '', '', false, 300, '', false, false, 0);
+       // restore auto-page-break status
+      $this->SetAutoPageBreak($auto_page_break, $bMargin);
+       // set the starting point for the page content
+      $this->setPageMark();
+    }
 
     if ( (!empty($headerdata['logo']['left'])) && (!empty($headerdata['logo_size']['left']['w'])) ) {
       if (($headerdata['logo']['left']) AND ($headerdata['logo']['left'] != K_BLANK_IMAGE)) {

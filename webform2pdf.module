@@ -344,6 +344,14 @@ function _webform2pdf_pdf_header($pdf, $node, $template) {
     $size['right']['h'] = 0;
   }
 
+    if (!empty($template['p_background'])) {
+    $f = file_load($template['p_background']);
+    $background = drupal_realpath($f->uri);
+  }
+  else {
+    $background = NULL;
+  }
+
   // set header font
   $pdf->setHeaderFont(array($template['h_font_family'], '', $template['h_font_size']));
   // set header margin
@@ -353,8 +361,7 @@ function _webform2pdf_pdf_header($pdf, $node, $template) {
   $header_msg = nl2br( _webform_filter_values($template['h_txt'], $node, NULL, NULL, FALSE) );
 
   // set header data
-  $pdf->setHeaderData($logo, $size, $header_msg, $template['h_txt_align']);
-
+  $pdf->setHeaderData($logo, $size, $header_msg, $template['h_txt_align'], $background);
   return $pdf;
 } // function _webform2pdf_pdf_header()
 

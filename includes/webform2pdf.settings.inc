@@ -9,7 +9,6 @@
  */
 function webform2pdf_admin_settings($form, &$form_state) {
   $default = variable_get('webform2pdf_default', '');
-
   // It is needed because of file upload
   $form['#attributes'] = array('enctype' => 'multipart/form-data');
   $form['base'] = array(
@@ -24,6 +23,41 @@ function webform2pdf_admin_settings($form, &$form_state) {
     '#title' => t('Attach PDF as an attachment to the e-mails sent to the form recipients.'),
     '#default_value' => $default['pdf_send_email'],
   );
+
+   //background image
+  $form['base']['p_background'] = array(
+    '#type' => 'value',
+    '#value' => $default['p_background'],
+  );
+
+  if ($default['p_background']) {
+    $file = file_load($default['p_background']);
+
+    $picture = array(
+      'path' => $file->uri,
+      'alt' => 'Page background',
+      'title' => $file->filename,
+    );
+
+    $form['base']['p_background_img'] = array(
+      '#type' => 'item',
+      '#title' => t('Background image for page'),
+      '#markup' => theme('image', $picture),
+    );
+
+    $form['base']['p_background_del'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Delete this image.'),
+    );
+  }
+  else {
+    $form['base']['p_background_file'] = array(
+      '#type' => 'file',
+      '#title' => t('Background image for page.'),
+      '#size' => 60,
+      '#description' => t('Upload background image for page. Image will be scaled by page size.'),
+    );
+  }
 
   $form['base']['page_format'] = array(
     '#type' => 'select',
@@ -428,7 +462,7 @@ function webform2pdf_admin_settings_validate($form, &$form_state) {
  */
 function webform2pdf_admin_settings_submit($form, &$form_state) {
   // File deleted.
-  foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
+  foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo', 'p_background') as $logo) {
     if ( isset($form_state['values'][$logo . '_del']) ) {
       if ( $form_state['values'][$logo . '_del'] ) {
         $logo_file = file_load($form_state['values'][$logo]);
@@ -440,13 +474,12 @@ function webform2pdf_admin_settings_submit($form, &$form_state) {
   }
 
   // Header and footer image file save.
-  foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
+  foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo', 'p_background') as $logo) {
     if ( isset($form_state['values'][$logo . '_file']) ) {
-      $validators = array(
-        'file_validate_is_image' => array(),
-        'file_validate_image_resolution' => array($form_state['values'][$logo . '_size']),
-      );
-
+      $validators['file_validate_is_image'] = array();
+      if (isset($form_state['values'][$logo . '_size'])) {
+        $validators['file_validate_image_resolution'] = array($form_state['values'][$logo . '_size']);
+      }
 
       if ( $file = file_save_upload($logo . '_file', $validators ) ) {
         $webform2pdf_directory =  file_default_scheme() . '://' . 'webform2pdf';
@@ -467,7 +500,7 @@ function webform2pdf_admin_settings_submit($form, &$form_state) {
   foreach (array('h_left_logo_del', 'h_right_logo_del', 'f_left_logo_del', 'f_right_logo_del',
     'h_left_logo_img', 'h_right_logo_img', 'f_left_logo_img', 'f_right_logo_img',
     'h_left_logo_file', 'h_right_logo_file', 'f_left_logo_file', 'f_right_logo_file',
-    'op', 'submit', 'form_build_id', 'form_token', 'form_id') as $del) {
+    'op', 'submit', 'form_build_id', 'form_token', 'form_id','p_background_del','p_background_file') as $del) {
     unset($save[$del]);
   }
   $save['p_body'] = $form_state['values']['p_body']['value'];
@@ -599,6 +632,39 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
       'L' => t('Landscape'),
     ),
   );
+
+   //background image
+  $form['base']['p_background'] = array(
+    '#type' => 'value',
+    '#value' => $default['p_background'],
+  );
+
+  if ($default['p_background']) {
+    $file = file_load($default['p_background']);
+
+    $picture = array(
+      'path' => $file->uri,
+      'alt' => 'Page background',
+      'title' => $file->filename,
+    );
+    $form['base']['p_background_img'] = array(
+      '#type' => 'item',
+      '#title' => t('Background image for page'),
+      '#markup' => theme('image', $picture),
+    );
+    $form['base']['p_background_del'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Delete this image.'),
+    );
+  }
+  else {
+    $form['base']['p_background_file'] = array(
+      '#type' => 'file',
+      '#title' => t('Background image for page.'),
+      '#size' => 60,
+      '#description' => t('Upload background image for page. Image will be scaled by page size.'),
+    );
+  }
 
   // E-mail settings
   $form['email'] = array(
@@ -1032,6 +1098,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
     $save['no_send_email_addr'] = isset($form_state['values']['no_send_email_addr']) ? serialize($form_state['values']['no_send_email_addr']) : '';
     $save['page_format'] = $form_state['values']['page_format'];
     $save['page_orientation'] = $form_state['values']['page_orientation'];
+    $save['p_background'] = $form_state['values']['p_background'];
     $save['h_left_logo'] = $form_state['values']['h_left_logo'];
     $save['h_right_logo'] = $form_state['values']['h_right_logo'];
     $save['f_left_logo'] = $form_state['values']['f_left_logo'];
@@ -1054,7 +1121,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
     if (isset($form_state['values']['new'])) {
       if ($form_state['values']['enabled']) {
         // Image file create
-        foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
+        foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo', 'p_background') as $logo) {
           if ( isset($form_state['values'][$logo . '_del']) ) {
             if ( $form_state['values'][$logo . '_del'] ) {
               $save[$logo] = 0;
@@ -1078,6 +1145,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
             'pdf_send_email' => $save['pdf_send_email'],
             'page_format' => $save['page_format'],
             'page_orientation' => $save['page_orientation'],
+            'p_background' => $save['p_background'],
             'h_left_logo' => $save['h_left_logo'],
             'h_right_logo' => $save['h_right_logo'],
             'f_left_logo' => $save['f_left_logo'],
@@ -1101,7 +1169,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
     }
     else {
       // Image file deleted.
-      foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
+      foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo', 'p_background') as $logo) {
         if ( isset($form_state['values'][$logo . '_del']) ) {
           if ( $form_state['values'][$logo . '_del'] ) {
             $logo_file = file_load($form_state['values'][$logo]);
@@ -1113,7 +1181,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
       }
 
       // Header and footer image file save.
-      foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
+      foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo', 'p_background') as $logo) {
         if ( isset($form_state['values'][$logo . '_file']) ) {
           $save[$logo] = _webform2pdf_save_logo($logo, $form_state['values']['nid']);
         }
@@ -1127,6 +1195,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
     $save['no_send_email_addr'] = '';
     $save['page_format'] = $webform2pdf_default['page_format'];
     $save['page_orientation'] = $webform2pdf_default['page_orientation'];
+    $save['p_background'] = $webform2pdf_default['p_background'];
     $save['h_left_logo'] = $webform2pdf_default['h_left_logo'];
     $save['h_right_logo'] = $webform2pdf_default['h_right_logo'];
     $save['f_left_logo'] = $webform2pdf_default['f_left_logo'];
@@ -1146,7 +1215,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
     $save['format'] = $webform2pdf_default['format'];
 
     // Image file deleted.
-    foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo') as $logo) {
+    foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo', 'p_background') as $logo) {
       $logo_file = file_load($form_state['values'][$logo]);
       if ($logo_file) {
         file_usage_delete($logo_file, 'webform2pdf', $logo, 1);
@@ -1164,6 +1233,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
         'no_send_email_addr' => $save['no_send_email_addr'],
         'page_format' => $save['page_format'],
         'page_orientation' => $save['page_orientation'],
+        'p_background' => $save['p_background'],
         'h_left_logo' => $save['h_left_logo'],
         'h_right_logo' => $save['h_right_logo'],
         'f_left_logo' => $save['f_left_logo'],
@@ -1190,10 +1260,10 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
 function _webform2pdf_save_logo($logo, $nid) {
   $webform2pdf_default = variable_get('webform2pdf_default', '');
 
-  $validators = array(
-    'file_validate_is_image' => array(),
-    'file_validate_image_resolution' => array($webform2pdf_default[$logo . '_size']),
-  );
+  $validators['file_validate_is_image'] = array();
+  if (isset($webform2pdf_default[$logo . '_size'])) {
+    $validators['file_validate_image_resolution'] = array($webform2pdf_default[$logo . '_size']);
+  }
 
   if ( $file = file_save_upload($logo . '_file', $validators ) ) {
     $webform2pdf_directory =  file_default_scheme() . '://' . 'webform2pdf';
