@@ -385,7 +385,12 @@ function webform2pdf_requirements($phase) {
       }
       else {
         $pdf = new TCPDF();
-        $version = $pdf->getTCPDFVersion();
+        if (method_exists($pdf, 'getTCPDFVersion')) {
+          $version = $pdf->getTCPDFVersion();
+        }
+        elseif (class_exists('TCPDF_STATIC')) {
+          $version = TCPDF_STATIC::getTCPDFVersion();
+        }
       }
       if ( version_compare('4.5.000', $version) >= 0) {
         $error = TRUE;
