@@ -22,8 +22,11 @@ function webform2pdf_submission_download_pdf($node, $submission, $output_type = 
       $pdf = theme('webform2pdf_pdf_footer', array('pdf' => $pdf, 'node' => $node, 'template' => $template));
       $pdf = theme('webform2pdf_pdf_page', array('pdf' => $pdf));
 
-      // initialize document
-      $pdf->AliasNbPages();
+      // todo: @deprecated deprecated since version 5.9.089 (2011-06-13)
+      if (method_exists($pdf, 'AliasNbPages')) {
+        // initialize document
+        $pdf->AliasNbPages();
+      }
 
       $page = theme('webform2pdf_content', array('node' => $node, 'submission' => $submission, 'template' => $template));
 
@@ -139,8 +142,11 @@ function webform2pdf_download_pdf_form_submit($form, &$form_state) {
     $pdf = theme('webform2pdf_pdf_footer', array('pdf' => $pdf, 'node' => $node, 'template' => $template));
     $pdf = theme('webform2pdf_pdf_page', array('pdf' => $pdf));
 
-    // initialize document
-    $pdf->AliasNbPages();
+    // todo: @deprecated deprecated since version 5.9.089 (2011-06-13)
+    if (method_exists($pdf, 'AliasNbPages')) {
+      // initialize document
+      $pdf->AliasNbPages();
+    }
 
     foreach ($submissions as $key => $submission) {
       $pages[$key] = theme('webform2pdf_content', array('node' => $node, 'submission' => $submission, 'template' => $template));
