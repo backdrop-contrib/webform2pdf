@@ -57,11 +57,13 @@ class W2PDF extends TCPDF {
    * @param string $hs string to print on document header
    * @param string $hsa align string to print on document header
    */
-  public function setHeaderData($ln = array(), $ls = array(), $hs = '', $hsa = '', $background = NULL) {
+  public function setHeaderData($ln = array(), $ls = array(), $hs = '', $hsa = '', $tc=array(0,0,0), $lc=array(0,0,0), $background = NULL) {
     $this->header_logo = $ln;
     $this->header_logo_size = $ls;
     $this->header_string = $hs;
     $this->header_string_align = $hsa;
+    $this->header_text_color = $tc;
+    $this->header_line_color = $lc;
     $this->background = $background;
   }
 

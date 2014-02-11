@@ -8,5 +8,4 @@ dependencies[] = libraries
 configure = admin/config/content/webform2pdf
 
 ; Files that contain classes:
-files[] = includes/webform2pdf.download.inc
-files[] = includes/webform2pdf.settings.inc
+files[] = webform2pdf.class.inc

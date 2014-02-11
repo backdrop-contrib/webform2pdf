@@ -361,7 +361,7 @@ function _webform2pdf_pdf_header($pdf, $node, $template) {
   $header_msg = nl2br( _webform_filter_values($template['h_txt'], $node, NULL, NULL, FALSE) );
 
   // set header data
-  $pdf->setHeaderData($logo, $size, $header_msg, $template['h_txt_align'], $background);
+  $pdf->setHeaderData($logo, $size, $header_msg, $template['h_txt_align'], array(), array(), $background);
   return $pdf;
 } // function _webform2pdf_pdf_header()
 
