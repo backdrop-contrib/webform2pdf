@@ -244,7 +244,8 @@ function _webform2pdf_get_submissions($nid, $header = NULL, $sids = array()) {
       $submissions[$row->sid]->name = $row->name;
       $submissions[$row->sid]->is_draft = $row->is_draft;
     }
-    $submissions[$row->sid]->data[$row->cid]['value'][$row->no] = $row->data;
+
+    $submissions[$row->sid]->data[$row->cid][$row->no] = $row->data;
     $previous = $row->sid;
   }
 
