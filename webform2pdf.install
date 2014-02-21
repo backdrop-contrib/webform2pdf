@@ -16,7 +16,7 @@ function webform2pdf_install() {
     'h_txt_align' => 'L', 'h_font_family' => 'dejavuserif',
     'p_txt_align' => 'L', 'p_font_family' => 'dejavuserif',
     'f_txt_align' => 'L', 'f_font_family' => 'dejavuserif',
-    'h_txt' => '', 'f_txt' => '', 'p_body' => '%email_values', 'format' => 'filtered_html',
+    'h_txt' => '', 'f_txt' => '', 'p_body' => '[submission:values]', 'format' => 'filtered_html',
     'h_left_logo_size' => '270x205', 'h_right_logo_size' => '270x205',
     'f_left_logo_size' => '270x56', 'f_right_logo_size' => '270x56',
     'p_background' => 0,
