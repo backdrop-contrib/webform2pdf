@@ -251,3 +251,12 @@ function theme_webform2pdf_mail2pdf($vars) {
     return $pdf->Output('filename', 'S');
   }
 } // function theme_webform2pdf_mail2pdf()
+
+function theme_webform2pdf_filename($vars) {
+  $sid = is_object($vars['submission']) ? $vars['submission']->sid : $vars['submission'];
+
+  $pdf_file_name = "webform_submission-" . $vars['node']->nid;
+  $pdf_file_name .= !empty($sid) ? '-' . $sid : '';
+  $pdf_file_name .= ".pdf";
+  return $pdf_file_name;
+}
