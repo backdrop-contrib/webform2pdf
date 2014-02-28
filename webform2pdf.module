@@ -89,33 +89,37 @@ function webform2pdf_theme() {
   return array(
     // webform2pdf.module
     // webform2pdf.settings.inc
-    'webform2pdf_token_help' => array(
-      'variables' => array('groups' => array(), 'tokens' => array()),
-      'file' => 'includes/webform2pdf.settings.inc',
-    ),
     'webform2pdf_pdf_init' => array(
       'variables' => array('node' => NULL, 'template' => NULL),
+      'file' => 'includes/webform2pdf.theme.inc',
     ),
     'webform2pdf_pdf_header' => array(
       'variables' => array('pdf' => NULL, 'node' => NULL, 'template' => NULL),
+      'file' => 'includes/webform2pdf.theme.inc',
     ),
     'webform2pdf_pdf_page' => array(
       'variables' => array('pdf' => NULL, 'node' => NULL, 'template' => NULL),
+      'file' => 'includes/webform2pdf.theme.inc',
     ),
     'webform2pdf_pdf_content' => array(
       'variables' => array('pdf' => NULL, 'node' => NULL, 'template' => NULL),
+      'file' => 'includes/webform2pdf.theme.inc',
     ),
     'webform2pdf_pdf_footer' => array(
       'variables' => array('pdf' => NULL, 'node' => NULL, 'template' => NULL),
+      'file' => 'includes/webform2pdf.theme.inc',
     ),
     'webform2pdf_mail2pdf' => array(
       'variables' => array('nid' => NULL, 'sid' => NULL),
+      'file' => 'includes/webform2pdf.theme.inc',
     ),
     'webform2pdf_filename' => array(
       'variables' => array('node' => NULL, 'submission' => NULL),
+      'file' => 'includes/webform2pdf.theme.inc',
     ),
     'webform2pdf_content' => array(
       'variables' => array('node' => NULL, 'submission' => NULL, 'template' => NULL),
+      'file' => 'includes/webform2pdf.theme.inc',
     ),
   );
 
@@ -251,313 +255,6 @@ function _webform2pdf_get_submissions($nid, $header = NULL, $sids = array()) {
 
   return $submissions;
 } // function _webform2pdf_get_submissions()
-
-function theme_webform2pdf_filename($vars) {
-  $sid = is_object($vars['submission']) ? $vars['submission']->sid : $vars['submission'];
-
-  $pdf_file_name = "webform_submission-" . $vars['node']->nid;
-  $pdf_file_name .= !empty($sid) ? '-' . $sid : '';
-  $pdf_file_name .= ".pdf";
-  return $pdf_file_name;
-}
-
-/*
- * _webform2pdf_init_tcpdf: PDF initializing
- */
-function _webform2pdf_init_tcpdf($node, $template) {
-  global $base_url;
-
-  $tcpdf_dir = libraries_get_path('tcpdf');
-
-  if (defined('K_TCPDF_EXTERNAL_CONFIG')) {
-    define('K_TCPDF_EXTERNAL_CONFIG', TRUE);
-    define('K_PATH_MAIN', dirname($_SERVER['SCRIPT_FILENAME']));
-    define('K_PATH_URL', $base_url);
-    define('K_PATH_FONTS', $tcpdf_dir . '/fonts/');
-    define('K_PATH_CACHE', $tcpdf_dir . '/cache/');
-    define('K_PATH_IMAGES', '');
-    define('K_BLANK_IMAGE', $tcpdf_dir . '/images/_blank.png');
-    define('K_CELL_HEIGHT_RATIO', 1.25);
-    define('K_SMALL_RATIO', 2/3);
-  }
-
-  if ( is_file($tcpdf_dir . '/tcpdf.php')   ) {
-    include_once( drupal_get_path('module', 'webform2pdf') . '/webform2pdf.class.inc' );
-
-    $font = Array(
-      variable_get('p_font_family', 'dejavuserif'),
-      '',
-      variable_get('p_font_size', 12),
-    );
-
-    // create new PDF document
-    $pdf = new W2PDF($template['page_orientation'] , 'mm', $template['page_format'], TRUE);
-
-    // set document information
-    $pdf->SetCreator(variable_get('site_name', 'Drupal'));
-    $pdf->SetAuthor($node->name);
-    $pdf->SetTitle($node->title);
-    $pdf->setPDFVersion('1.6');
-    return $pdf;
-  }
-  else {
-    return;
-  }
-} // function _webform2pdf_init_tcpdf()
-
-/*
- * theme_webform2pdf_pdf_init: pdf initializing, theme hook
- */
-function theme_webform2pdf_pdf_init($vars) {
-  return _webform2pdf_init_tcpdf($vars['node'], $vars['template']);
-} // function theme_webform2pdf_pdf_init()
-
-/*
- * _webform2pdf_pdf_header: pdf header data
- */
-function _webform2pdf_pdf_header($pdf, $node, $template) {
-  if (!empty($template['h_left_logo'])) {
-    $f = file_load($template['h_left_logo']);
-    $s = image_get_info($f->uri);
-    $logo['left'] = drupal_realpath($f->uri);
-    // 75dpi image, image size convert millimeter
-    $size['left']['w'] = $s['width']/75*25;
-    $size['left']['h'] = $s['height']/75*25;
-  }
-  else {
-    $logo['left'] = '';
-    $size['left']['w'] = 0;
-    $size['left']['h'] = 0;
-  }
-
-  if (!empty($template['h_right_logo'])) {
-    $f = file_load($template['h_right_logo']);
-    $s = image_get_info($f->uri);
-
-    $logo['right'] = drupal_realpath($f->uri);
-    // 75dpi image, image size convert millimeter
-    $size['right']['w'] = $s['width']/75*25;
-    $size['right']['h'] = $s['height']/75*25;
-  }
-  else {
-    $logo['right'] = '';
-    $size['right']['w'] = 0;
-    $size['right']['h'] = 0;
-  }
-
-    if (!empty($template['p_background'])) {
-    $f = file_load($template['p_background']);
-    $background = drupal_realpath($f->uri);
-  }
-  else {
-    $background = NULL;
-  }
-
-  // set header font
-  $pdf->setHeaderFont(array($template['h_font_family'], '', $template['h_font_size']));
-  // set header margin
-  $pdf->setHeaderMargin(5);
-
-  // webform filter
-  $header_msg = nl2br( _webform_filter_values($template['h_txt'], $node, NULL, NULL, FALSE) );
-
-  // set header data
-  $pdf->setHeaderData($logo, $size, $header_msg, $template['h_txt_align'], array(), array(), $background);
-  return $pdf;
-} // function _webform2pdf_pdf_header()
-
-/*
- * _webform2pdf_pdf_header: pdf header theme hook
- */
-function theme_webform2pdf_pdf_header($vars) {
-  return _webform2pdf_pdf_header($vars['pdf'], $vars['node'], $vars['template']);
-} // function theme_webform2pdf_pdf_header()
-
-/*
- * _webform2pdf_pdf_footer: pdf footer data
- */
-function _webform2pdf_pdf_footer($pdf, $node, $template) {
-  if (!empty($template['f_left_logo'])) {
-    $f = file_load($template['f_left_logo']);
-    $s = image_get_info($f->uri);
-
-    $logo['left'] = drupal_realpath($f->uri);
-    // 75dpi image, image size convert millimeter
-    $size['left']['w'] = $s['width']/75*25;
-    $size['left']['h'] = $s['height']/75*25;
-  }
-  else {
-    $logo['left'] = '';
-    $size['left']['w'] = 0;
-    $size['left']['h'] = 0;
-  }
-
-  if (!empty($template['f_right_logo'])) {
-    $f = file_load($template['f_right_logo']);
-    $s = image_get_info($f->uri);
-
-    $logo['right'] = drupal_realpath($f->uri);
-    // 75dpi image, image size convert millimeter
-    $size['right']['w'] = $s['width']/75*25;
-    $size['right']['h'] = $s['height']/75*25;
-  }
-  else {
-    $logo['right'] = '';
-    $size['right']['w'] = 0;
-    $size['right']['h'] = 0;
-  }
-
-  // set footer font
-  $pdf->setFooterFont(array($template['f_font_family'], '', $template['f_font_size']));
-  // set footer margin
-  $pdf->setFooterMargin(5);
-
-  // webform filter
-  $footer_msg = nl2br( _webform_filter_values($template['f_txt'], $node, NULL, NULL, FALSE) );
-
-  // set footer data
-  $pdf->SetFooterData($logo, $size, $footer_msg, $template['f_txt_align']);
-
-  return $pdf;
-} // function _webform2pdf_pdf_footer()
-
-/*
- * theme_webform2pdf_pdf_footer: pdf footer theme hook
- */
-function theme_webform2pdf_pdf_footer($vars) {
-  return _webform2pdf_pdf_footer($vars['pdf'], $vars['node'], $vars['template']);
-} // function theme_webform2pdf_pdf_footer()
-
-/*
- * _webform2pdf_pdf_page: pdf page init
- */
-function _webform2pdf_pdf_page($pdf) {
-
-  // set margins
-  $pdf->SetMargins(15, 20, 15);
-  // set auto page breaks
-  $pdf->SetAutoPageBreak(TRUE, 25 );
-
-  // set image scale factor
-  $pdf->setImageScale(4);
-  // set image compression quality
-  $pdf->setJPEGQuality(100);
-  return $pdf;
-} // function _webform2pdf_pdf_page()
-
-/*
- * theme_webform2pdf_pdf_page: pdf page theme hook
- */
-function theme_webform2pdf_pdf_page($vars) {
-  return _webform2pdf_pdf_page($vars['pdf']);
-} // function theme_webform2pdf_pdf_page()
-
-/*
- * _webform2pdf_pdf_content: Fills PDF page with content
- */
-function _webform2pdf_pdf_content($pdf, $node, $template) {
-  $pdf->SetFont($template['p_font_family'], '', $template['p_font_size'] );
-
-  foreach ($template['pages'] as $page) {
-    // add a page
-    $pdf->AddPage();
-    $pdf->writeHTML($page, TRUE, FALSE, FALSE, FALSE, $template['p_txt_align']);
-  }
-
-  return $pdf;
-} // function _webform2pdf_pdf_content()
-
-/*
- * theme_webform2pdf_pdf_content: pdf content theme hook
- */
-function theme_webform2pdf_pdf_content($vars) {
-  return _webform2pdf_pdf_content($vars['pdf'], $vars['node'], $vars['template']);
-} // function theme_webform2pdf_pdf_content()
-
-function theme_webform2pdf_content($vars) {
-  $email = array(
-    'html' => 'text',
-    'excluded_components' => array(),
-  );
-
-  $p_body = _webform_filter_values($vars['template']['p_body'], $vars['node'], $vars['submission'], $email, FALSE, TRUE);
-  return _webform2pdf_filter_values($p_body, $vars['node'], $vars['submission']);
-} // function theme_webform2pdf_pdf_content()
-
-function _webform2pdf_filter_values($string, $node, $submission) {
-  $tokens = array();
-  foreach ($node->webform['components'] as $component) {
-    if (isset($component['type']) && $component['type'] == 'select') {
-      $values = isset($submission->data[$component['cid']]['value']) ? $submission->data[$component['cid']]['value'] : '';
-      if ( is_array($values) ) {
-        $items = explode("<nl2br>", preg_replace("/(\r\n)+|(\n|\r)+/", "<nl2br>", $component['extra']['items']) );
-
-        $options = array();
-        foreach ($items as $item) {
-          if ( strpos($item, '|') === FALSE ) {
-            $key = $option = $item;
-          }
-          else {
-            $key = drupal_substr($item, 0, strpos($item, '|'));
-            $option = drupal_substr($item, strpos($item, '|') + 1);
-          }
-          $options[$key] = $option;
-        }
-
-        $nl = $all = $nl_all = array();
-
-        foreach ($options as $key => $option) {
-          if ( (in_array($option, $values)) || (in_array($key, $values)) ) {
-            if (!empty($option)) {
-              $nl[] = ' - ' . $option . "<br />\n";
-              $all[] = '<u><b><span class="selected">' . $option . '</span></b></u>';
-              $nl_all[] = ' [X] ' . $option . "<br />\n";
-            }
-          }
-          else {
-            if (!empty($option)) {
-              $all[] = $option;
-              $nl_all[] = ' [  ] ' . $option . "<br />\n";
-            }
-          }
-        }
-
-        // select_or_other module support
-        if (module_exists('select_or_other')) {
-          $potential_values = array_merge(array_keys($options), array_values($options));
-          $diff = array_diff($values, $potential_values);
-          if (count($diff)) {
-            foreach ($diff as $value) {
-              if ( !empty($value) ) {
-                $nl[] = ' - ' . check_plain($value) . "<br />\n";
-                $all[] = '<u><b><span class="selected">' . check_plain($value) . '</span></b></u>';
-                $nl_all[] = ' [X] ' . check_plain($value) . "<br />\n";
-              }
-            }
-          }
-        }
-        $tokens['%label_nl[' . $component['form_key'] . ']'] = $component['name'] . ": <br />\n" . implode('', $nl);
-        $tokens['%label_all[' . $component['form_key'] . ']'] = $component['name'] . ': ' . implode(', ', $all);
-        $tokens['%label_all_nl[' . $component['form_key'] . ']'] = $component['name'] . ": <br />\n" . implode('', $nl_all);
-        $tokens['%nl[' . $component['form_key'] . ']'] = implode('', $nl);
-        $tokens['%all[' . $component['form_key'] . ']'] = implode(', ', $all);
-        $tokens['%all_nl[' . $component['form_key'] . ']'] = implode('', $nl_all);
-      }
-      else {
-        $tokens['%label_nl[' . $component['form_key'] . ']'] =
-        $tokens['%label_all[' . $component['form_key'] . ']'] =
-        $tokens['%label_all_nl[' . $component['form_key'] . ']'] =
-        $tokens['%nl[' . $component['form_key'] . ']'] =
-        $tokens['%all[' . $component['form_key'] . ']'] =
-        $tokens['%all_nl[' . $component['form_key'] . ']'] = '';
-      }
-    }
-  }
-  drupal_alter('webform2pdf_tokens', $tokens, $node, $submission);
-
-  return strtr($string, $tokens);
-}
-
 /*
  * webform2pdf_mail_alter: hook_mail_alter
  */
@@ -605,42 +302,6 @@ function webform2pdf_mail_alter(&$message) {
     }
   }
 } // function webform2pdf_mail_alter()
-
-/*
- * theme_webform2pdf_mail2pdf(): mail attachment pdf
- */
-function theme_webform2pdf_mail2pdf($vars) {
-  $node = node_load($vars['nid']);
-
-  $get_submissions = _webform2pdf_get_submissions($vars['nid'], NULL, array($vars['sid']));
-  $submission = array_shift($get_submissions);
-
-  $template = _webform2pdf_get_template($node->nid);
-  $pdf = theme('webform2pdf_pdf_init', array('node' => $node, 'template' => $template));
-  if ( !empty($pdf) ) {
-    $pdf = theme('webform2pdf_pdf_header', array('pdf' => $pdf, 'node' => $node, 'template' => $template));
-    $pdf = theme('webform2pdf_pdf_footer', array('pdf' => $pdf, 'node' => $node, 'template' => $template));
-    $pdf = theme('webform2pdf_pdf_page', array('pdf' => $pdf));
-
-    // todo: @deprecated deprecated since version 5.9.089 (2011-06-13)
-    if (method_exists($pdf, 'AliasNbPages')) {
-      // initialize document
-      $pdf->AliasNbPages();
-    }
-
-    $page = theme('webform2pdf_content', array('node' => $node, 'submission' => $submission, 'template' => $template));
-
-    $template['pages'] = explode('%pagebreak', $page);
-
-    $pdf = theme('webform2pdf_pdf_content', array('pdf' => $pdf, 'node' => $node, 'template' => $template));
-
-    // reset pointer to the last page
-    $pdf->lastPage();
-
-    // Return PDF document
-    return $pdf->Output('filename', 'S');
-  }
-} // function theme_webform2pdf_mail2pdf()
 
 /*
  * webform2pdf_url_encode: pdf download anonymous url generation.
