@@ -92,8 +92,8 @@ function webform2pdf_download_pdf_form($form, &$form_state, $node) {
       $row[] = theme('username', array('account' => $submission));
       $row[] = $submission->remote_addr;
     }
-    $row[] = l(t('View'), "node/$node->nid/submission/$sid");
-    $row[] = array('data' => l(t('Download PDF'), "node/$node->nid/submission/$sid/downloadpdf"));
+    $row[] = l(t('View'), 'node/' . $node->nid . '/submission/' . $sid);
+    $row[] = array('data' => l(t('Download PDF'), 'node/' . $node->nid . '/submission/' . $sid . '/downloadpdf'));
     // D7 BUG a colspan opciot nem figyeli a tableselect igy nem latszik a downloadpdf link
 
     $operation_count = 2;
@@ -132,9 +132,15 @@ function webform2pdf_download_pdf_form_submit($form, &$form_state) {
   if (count($form_state['values']['submissions'])) {
     // call header generator
     $node = node_load($form_state['values']['nid']);
+    module_load_include('inc', 'webform', 'includes/webform.submissions');
 
     $header = theme('webform_results_submissions_header', array('node' => $node));
-    $submissions = _webform2pdf_get_submissions($form_state['values']['nid'], $header, $form_state['values']['submissions']);
+    $filters = array(
+      'nid' => $form_state['values']['nid'],
+      'sid' => $form_state['values']['submissions'],
+    );
+
+    $submissions = webform_get_submissions($filters, $header);
     $template = _webform2pdf_get_template($node->nid);
 
     $pdf = theme('webform2pdf_pdf_init', array('node' => $node, 'template' => $template));

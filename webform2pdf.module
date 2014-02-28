@@ -205,56 +205,6 @@ function _webform2pdf_get_template($nid) {
   return $row;
 } // function _webform2pdf_get_template()
 
-/**
- * Return all the submissions for a particular node.
- * Original function webform module: webform_get_submissions.
- *
- * @param $nid
- *   The node ID for which submissions are being fetched.
- * @param $header
- *   If the results of this fetch will be used in a sortable
- *   table, pass the array header of the table.
- * @param $sids
- *   Optional; the submissions ID to filter the submissions by.
- * @return $submissions
- *   An array of submissions matching your filters.
- */
-function _webform2pdf_get_submissions($nid, $header = NULL, $sids = array()) {
-  $query = db_select('webform_submissions', 's')
-    ->condition('s.nid', $nid, '=');
-  if (count($sids)) {
-    $query->condition('s.sid', $sids, 'IN');
-  }
-  $query->leftJoin('webform_submitted_data', 'sd', 'sd.sid = s.sid');
-  $query->leftJoin('users', 'u', 'u.uid = s.uid');
-  $query->fields('s')
-    ->fields('sd', array('cid', 'no', 'data'))
-    ->fields('u', array('name'));
-  if ($header) {
-    $query = $query->extend('TableSort');
-    $query->orderByHeader($header);
-  }
-  $result = $query->execute();
-
-  $previous = 0;
-  foreach ($result as $row) {
-    if ($row->sid != $previous) {
-      $submissions[$row->sid] = new stdClass();
-      $submissions[$row->sid]->sid = $row->sid;
-      $submissions[$row->sid]->nid = $row->nid;
-      $submissions[$row->sid]->submitted = $row->submitted;
-      $submissions[$row->sid]->remote_addr = $row->remote_addr;
-      $submissions[$row->sid]->uid = $row->uid;
-      $submissions[$row->sid]->name = $row->name;
-      $submissions[$row->sid]->is_draft = $row->is_draft;
-    }
-
-    $submissions[$row->sid]->data[$row->cid][$row->no] = $row->data;
-    $previous = $row->sid;
-  }
-
-  return $submissions;
-} // function _webform2pdf_get_submissions()
 /*
  * webform2pdf_mail_alter: hook_mail_alter
  */

@@ -509,47 +509,6 @@ function webform2pdf_admin_settings_submit($form, &$form_state) {
   variable_set('webform2pdf_default', $save);
 } // function webform2pdf_admin_settings_submit()
 
-function theme_webform2pdf_token_help($variables) {
-  $variables['tokens'] += array(
-    'selected' => array(
-      'title' => t('Selected elements'),
-      'tokens' => array(
-        '%label_nl[' . t('key') . ']' => t('Modifier outputs all of the selected options: one below the other. Outputs labels (questions) above options.'),
-        '%label_all[' . t('key') . ']' => t('Lists every option, and highlights which were selected from them. Outputs labels (questions) above options.'),
-        '%label_all_nl[' . t('key') . ']' => t('Lists all of the options in separate lines, and highlights selected ones. Outputs labels (questions) above options.'),
-        '%nl[' . t('key') . ']' => t('Modifier outputs all of the selected options: one below the other.'),
-        '%all[' . t('key') . ']' => t('Lists every option, and highlights which were selected from them.'),
-        '%all_nl[' . t('key') . ']' => t('Lists all of the options in separate lines, and highlights selected ones.'),
-      ),
-      'description' => t('Select form elements can be outputted in different ways, write one of the following strings after the element name to choose from them.'),
-    )
-  );
-
-  $variables['tokens'] += array(
-    'pdf' => array(
-      'title' => t('PDF tokens'),
-      'tokens' => array(
-        '%pagebreak' => t('Page break.'),
-      ),
-    )
-  );
-
-  $output = '';
-  foreach ($variables['tokens'] as $group_name => $group) {
-    if (!is_array($variables['groups']) || in_array($group_name, $variables['groups'])) {
-      $items = array();
-      foreach ($group['tokens'] as $token => $token_description) {
-        $items[] = $token . ' - ' . $token_description;
-      }
-      $output .= theme('item_list', array('items' => $items, 'title' => $group['title']));
-      $output .= isset($group['description']) ? '<p>' . $group['description'] . '</p>' : '';
-    }
-  }
-
-  $token_values = theme('webform_token_help', array('groups' => $variables['groups']));
-  return str_replace('</div></div></fieldset>', $output . '</div></div></fieldset>', $token_values);
-}
-
 /**
  * Overview form of all components for this webform.
  */
