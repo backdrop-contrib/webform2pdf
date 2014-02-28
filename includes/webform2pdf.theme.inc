@@ -228,8 +228,7 @@ function theme_webform2pdf_content($vars) {
 function theme_webform2pdf_mail2pdf($vars) {
   $node = node_load($vars['nid']);
 
-  $get_submissions = webform_menu_submission_load($vars['sid'], $vars['nid']);
-  $submission = array_shift($get_submissions);
+  $submission = webform_menu_submission_load($vars['sid'], $vars['nid']);
 
   $template = _webform2pdf_get_template($node->nid);
   $pdf = theme('webform2pdf_pdf_init', array('node' => $node, 'template' => $template));
