@@ -194,15 +194,10 @@ function webform2pdf_preprocess_webform_results_submissions(&$vars) {
  * _webform2pdf_get_template: returns the PDF settings of the given webform
  */
 function _webform2pdf_get_template($nid) {
-  $row = db_select('webform2pdf', 'w2p')
-    ->fields('w2p')
-    ->condition('nid', $nid, '=')
-    ->condition('enabled', 1, '=')
-    ->execute()
-    ->fetchAssoc();
+  $setting = webform2pdf_get_setting($nid);
+  $setting['p_body'] = check_markup($setting['p_body'], $setting['format'], FALSE);
 
-  $row['p_body'] = check_markup($row['p_body'], $row['format'], FALSE);
-  return $row;
+  return $setting;
 } // function _webform2pdf_get_template()
 
 /*
@@ -264,3 +259,19 @@ function webform2pdf_url_encode($nid, $sid, $encode = TRUE) {
   }
   return $url;
 } // function webform2pdf_url_encode()
+
+/**
+ * Get webform2pdf setting.
+ */
+function webform2pdf_get_setting($nid) {
+  $default = db_select('webform2pdf', 'w2p')
+    ->fields('w2p')
+    ->condition('nid', $nid, '=')
+    ->execute()
+    ->fetchAssoc();
+
+  $data = unserialize($default['data']);
+  unset($default['data']);
+
+  return array_merge($default, $data);
+} // function webform2pdf_enabled_pdf_access()

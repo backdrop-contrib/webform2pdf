@@ -262,9 +262,9 @@ function webform2pdf_admin_settings($form, &$form_state) {
     '#type' => 'text_format',
     '#base_type' => 'textarea',
     '#title' => t('Page body'),
-    '#format' => isset($edit['format']) ? $edit['format'] : NULL,
+    '#format' => isset($default['p_body']['format']) ? $default['p_body']['format'] : NULL,
     '#rows' => '10',
-    '#default_value' => $default['p_body'],
+    '#default_value' => $default['p_body']['value'],
     '#description' => t("The content of the PDF file can be defined here, the text can be formatted with HTML and CSS tags. The form elements can be referred with the following special strings: !vars."
     , array('!vars' => '%pagebreak')) . theme('webform_token_help'),
   );
@@ -503,8 +503,6 @@ function webform2pdf_admin_settings_submit($form, &$form_state) {
     'op', 'submit', 'form_build_id', 'form_token', 'form_id','p_background_del','p_background_file') as $del) {
     unset($save[$del]);
   }
-  $save['p_body'] = $form_state['values']['p_body']['value'];
-  $save['format'] = $form_state['values']['p_body']['format'];
 
   variable_set('webform2pdf_default', $save);
 } // function webform2pdf_admin_settings_submit()
@@ -513,11 +511,7 @@ function webform2pdf_admin_settings_submit($form, &$form_state) {
  * Overview form of all components for this webform.
  */
 function webform2pdf_edit_form($form, &$form_state, $node) {
-  $default = db_select('webform2pdf', 'w2p')
-    ->fields('w2p')
-    ->condition('nid', $node->nid, '=')
-    ->execute()
-    ->fetchAssoc();
+  $default = webform2pdf_get_setting($node->nid);
 
   if (!$default) {
     $default = variable_get('webform2pdf_default', '');
@@ -662,7 +656,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
 
   if ( count($send_mail) ) {
     if (isset($default['no_send_email_addr'])) {
-      $def = unserialize($default['no_send_email_addr']);
+      $def = $default['no_send_email_addr'];
     }
     if (!isset($def) || !is_array($def) ) {
       $def = array();
@@ -819,11 +813,11 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     '#type' => 'text_format',
     '#base_type' => 'textarea',
     '#title' => t('Page body'),
-    '#format' => isset($default['format']) ? $default['format'] : NULL,
+    '#format' => isset($default['p_body']['format']) ? $default['p_body']['format'] : NULL,
     '#rows' => '10',
-    '#default_value' => $default['p_body'],
-    '#description' => t("The content of the PDF file can be defined here, the text can be formatted with HTML and CSS tags.") .
-      theme('webform2pdf_token_help', array('groups' => array('basic', 'node', 'special', 'email', 'submission', 'selected', 'pdf'))),
+    '#default_value' => $default['p_body']['value'],
+    '#description' => t("The content of the PDF file can be defined here, the text can be formatted with HTML and CSS tags.")
+      . theme('webform_token_help', array('groups' => array('node', 'submission'))),
   );
 
   $form['page']['p_txt_align'] = array(
@@ -1053,31 +1047,20 @@ function webform2pdf_edit_form_validate($form, &$form_state) {
  */
 function webform2pdf_edit_form_submit($form, &$form_state) {
   if ($form_state['values']['op'] == t('Save')) {
-    $save['pdf_send_email'] = $form_state['values']['pdf_send_email'];
-    $save['no_send_email_addr'] = isset($form_state['values']['no_send_email_addr']) ? serialize($form_state['values']['no_send_email_addr']) : '';
-    $save['page_format'] = $form_state['values']['page_format'];
-    $save['page_orientation'] = $form_state['values']['page_orientation'];
-    $save['p_background'] = $form_state['values']['p_background'];
-    $save['h_left_logo'] = $form_state['values']['h_left_logo'];
-    $save['h_right_logo'] = $form_state['values']['h_right_logo'];
-    $save['f_left_logo'] = $form_state['values']['f_left_logo'];
-    $save['f_right_logo'] = $form_state['values']['f_right_logo'];
-    $save['h_font_size'] = $form_state['values']['h_font_size'];
-    $save['p_font_size'] = $form_state['values']['p_font_size'];
-    $save['f_font_size'] = $form_state['values']['f_font_size'];
-    $save['h_txt_align'] = $form_state['values']['h_txt_align'];
-    $save['h_font_family'] = $form_state['values']['h_font_family'];
-    $save['p_txt_align'] = $form_state['values']['p_txt_align'];
-    $save['p_font_family'] = $form_state['values']['p_font_family'];
-    $save['f_txt_align'] = $form_state['values']['f_txt_align'];
-    $save['f_font_family'] = $form_state['values']['f_font_family'];
-    $save['h_txt'] = $form_state['values']['h_txt'];
-    $save['f_txt'] = $form_state['values']['f_txt'];
-    $save['p_body'] = $form_state['values']['p_body']['value'];
-    $save['format'] = $form_state['values']['p_body']['format'];
+    $save = $form_state['values'];
+    unset($save['nid']);
+    unset($save['enabled']);
+    unset($save['submit']);
+    unset($save['reset']);
+    unset($save['form_build_id']);
+    unset($save['form_token']);
+    unset($save['form_id']);
+    unset($save['op']);
 
     // First enabled
     if (isset($form_state['values']['new'])) {
+      unset($save['new']);
+
       if ($form_state['values']['enabled']) {
         // Image file create
         foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo', 'p_background') as $logo) {
@@ -1090,40 +1073,18 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
               $file = file_load($save[$logo]);
               file_usage_add($file, 'webform2pdf', $logo, 1);
             }
+            unset($save[$logo . '_del']);
           }
           if ( isset($form_state['values'][$logo . '_file']) ) {
             $save[$logo] = _webform2pdf_save_logo($logo, $form_state['values']['nid']);
+            unset($save[$logo . '_file']);
           }
         }
 
-        db_insert('webform2pdf')
-          ->fields(array(
-            'nid' => $form_state['values']['nid'],
-            'enabled' => $form_state['values']['enabled'],
-  //          'download' => $save['download'],
-            'pdf_send_email' => $save['pdf_send_email'],
-            'page_format' => $save['page_format'],
-            'page_orientation' => $save['page_orientation'],
-            'p_background' => $save['p_background'],
-            'h_left_logo' => $save['h_left_logo'],
-            'h_right_logo' => $save['h_right_logo'],
-            'f_left_logo' => $save['f_left_logo'],
-            'f_right_logo' => $save['f_right_logo'],
-            'h_font_size' => $save['h_font_size'],
-            'p_font_size' => $save['p_font_size'],
-            'f_font_size' => $save['f_font_size'],
-            'h_txt_align' => $save['h_txt_align'],
-            'h_font_family' => $save['h_font_family'],
-            'p_txt_align' => $save['p_txt_align'],
-            'p_font_family' => $save['p_font_family'],
-            'f_txt_align' => $save['f_txt_align'],
-            'f_font_family' => $save['f_font_family'],
-            'h_txt' => $save['h_txt'],
-            'f_txt' => $save['f_txt'],
-            'p_body' => $save['p_body'],
-            'format' => $save['format'],
-          ))
-          ->execute();
+        $w2pdf_setting['nid'] = $form_state['values']['nid'];
+        $w2pdf_setting['enabled'] = $form_state['values']['enabled'];
+        $w2pdf_setting['data'] = $save;
+        drupal_write_record('webform2pdf', $w2pdf_setting);
       }
     }
     else {
@@ -1136,6 +1097,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
             file_delete($logo_file);
             $save[$logo] = 0;
           }
+          unset($save[$logo . '_del']);
         }
       }
 
@@ -1143,35 +1105,14 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
       foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo', 'p_background') as $logo) {
         if ( isset($form_state['values'][$logo . '_file']) ) {
           $save[$logo] = _webform2pdf_save_logo($logo, $form_state['values']['nid']);
+          unset($save[$logo . '_file']);
         }
       }
     }
   }
   else {
     // default settings
-    $webform2pdf_default = variable_get('webform2pdf_default', '');
-    $save['pdf_send_email'] = $webform2pdf_default['pdf_send_email'];
-    $save['no_send_email_addr'] = '';
-    $save['page_format'] = $webform2pdf_default['page_format'];
-    $save['page_orientation'] = $webform2pdf_default['page_orientation'];
-    $save['p_background'] = $webform2pdf_default['p_background'];
-    $save['h_left_logo'] = $webform2pdf_default['h_left_logo'];
-    $save['h_right_logo'] = $webform2pdf_default['h_right_logo'];
-    $save['f_left_logo'] = $webform2pdf_default['f_left_logo'];
-    $save['f_right_logo'] = $webform2pdf_default['f_right_logo'];
-    $save['h_font_size'] = $webform2pdf_default['h_font_size'];
-    $save['p_font_size'] = $webform2pdf_default['p_font_size'];
-    $save['f_font_size'] = $webform2pdf_default['f_font_size'];
-    $save['h_txt_align'] = $webform2pdf_default['h_txt_align'];
-    $save['h_font_family'] = $webform2pdf_default['h_font_family'];
-    $save['p_txt_align'] = $webform2pdf_default['p_txt_align'];
-    $save['p_font_family'] = $webform2pdf_default['p_font_family'];
-    $save['f_txt_align'] = $webform2pdf_default['f_txt_align'];
-    $save['f_font_family'] = $webform2pdf_default['f_font_family'];
-    $save['h_txt'] = $webform2pdf_default['h_txt'];
-    $save['f_txt'] = $webform2pdf_default['f_txt'];
-    $save['p_body'] = $webform2pdf_default['p_body'];
-    $save['format'] = $webform2pdf_default['format'];
+    $save = variable_get('webform2pdf_default', '');
 
     // Image file deleted.
     foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo', 'p_background') as $logo) {
@@ -1185,34 +1126,10 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
 
   if (!isset($form_state['values']['new'])) {
     // update settings
-    db_update('webform2pdf')
-      ->fields(array(
-        'enabled' => $form_state['values']['enabled'],
-        'pdf_send_email' => $save['pdf_send_email'],
-        'no_send_email_addr' => $save['no_send_email_addr'],
-        'page_format' => $save['page_format'],
-        'page_orientation' => $save['page_orientation'],
-        'p_background' => $save['p_background'],
-        'h_left_logo' => $save['h_left_logo'],
-        'h_right_logo' => $save['h_right_logo'],
-        'f_left_logo' => $save['f_left_logo'],
-        'f_right_logo' => $save['f_right_logo'],
-        'h_font_size' => $save['h_font_size'],
-        'p_font_size' => $save['p_font_size'],
-        'f_font_size' => $save['f_font_size'],
-        'h_txt_align' => $save['h_txt_align'],
-        'h_font_family' => $save['h_font_family'],
-        'p_txt_align' => $save['p_txt_align'],
-        'p_font_family' => $save['p_font_family'],
-        'f_txt_align' => $save['f_txt_align'],
-        'f_font_family' => $save['f_font_family'],
-        'h_txt' => $save['h_txt'],
-        'f_txt' => $save['f_txt'],
-        'p_body' => $save['p_body'],
-        'format' => $save['format'],
-      ))
-      ->condition('nid', $form_state['values']['nid'], '=')
-      ->execute();
+    $w2pdf_setting['nid'] = $form_state['values']['nid'];
+    $w2pdf_setting['enabled'] = $form_state['values']['enabled'];
+    $w2pdf_setting['data'] = $save;
+    drupal_write_record('webform2pdf', $w2pdf_setting, 'nid');
   }
 } // function webform2pdf_edit_form_submit()
 
