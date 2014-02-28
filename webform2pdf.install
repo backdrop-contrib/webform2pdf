@@ -5,6 +5,53 @@
  */
 
 /**
+ * Implements hook_requirements().
+ */
+function webform2pdf_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  $error = FALSE;
+  $value = $version = '';
+
+  if ($phase == 'runtime') {
+    $tcpdf_dir = libraries_get_path('tcpdf');
+
+    if ( !is_file($tcpdf_dir . '/tcpdf.php')   ) {
+      $error = TRUE;
+      $value = $t('The Webform2PDF module requires you to !link.', array('!link' => l($t('set the TCPDF library directory'), 'admin/settings/webform2pdf')));
+    }
+    else {
+      include_once($tcpdf_dir . '/tcpdf.php' );
+      if (class_exists('TCPDF_STATIC')) {
+        $version = TCPDF_STATIC::getTCPDFVersion();
+      }
+
+      if (version_compare('6.0.000', $version) >= 0) {
+        $error = TRUE;
+        $value = $t('The Webform2PDF module requires !TCPDF 6.0.000 or later, your version: !ver.', array('!TCPDF' => l('TCPDF', 'http://www.tcpdf.org/'), '!ver' => $version));
+      }
+    }
+  }
+
+  if ($error) {
+    $requirements['webform2pdf_tcpdf_library'] = array(
+      'title' => $t('TCPDF Library requirements'),
+      'value' => $value,
+      'severity' => REQUIREMENT_ERROR,
+    );
+  }
+  else {
+    $requirements['webform2pdf_tcpdf_library'] = array(
+      'title' => $t('TCPDF Library version'),
+      'value' => $version,
+      'severity' => REQUIREMENT_OK,
+    );
+  }
+
+  return $requirements;
+}
+
+/**
  * Implements hook_install().
  */
 function webform2pdf_install() {
