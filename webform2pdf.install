@@ -112,7 +112,6 @@ function webform2pdf_schema() {
       'data' => array(
         'type' => 'blob',
         'size' => 'big',
-        'not null' => TRUE,
         'serialize' => TRUE,
         'description' => 'Serialized data containing the webform2pdf properties.',
       ),
@@ -254,11 +253,11 @@ function webform2pdf_update_7302(&$sandbox) {
   return t('The page background field added to the webform2pdf table.');
 }
 
-/*
- * Add background field
+/**
+ * The data field added to webform2pdf table and remove old fields.
  */
 function webform2pdf_update_7400() {
-  db_add_field('webform2pdf', 'data', array('type' => 'blob', 'size' => 'big', 'not null' => TRUE, 'serialize' => TRUE, 'description' => 'Serialized data containing the webform2pdf properties.'));
+  db_add_field('webform2pdf', 'data', array('type' => 'blob', 'size' => 'big', 'serialize' => TRUE, 'description' => 'Serialized data containing the webform2pdf properties.'));
 
   $w2pdf_settings = db_select('webform2pdf', 'w2p')
     ->fields('w2p')
@@ -272,8 +271,8 @@ function webform2pdf_update_7400() {
     unset($setting->enabled);
     $setting = (array) $setting;
     $setting['no_send_email_addr'] = unserialize($setting['no_send_email_addr']);
-    $p_body['value'] = $setting->p_body;
-    $p_body['format'] = $setting->format;
+    $p_body['value'] = $setting['p_body'];
+    $p_body['format'] = $setting['format'];
     $setting['p_body'] = $p_body;
     $setting = serialize($setting);
 
@@ -316,7 +315,7 @@ function webform2pdf_update_7400() {
 //  [submission:values]
   variable_set('webform2pdf_default', $w2pdf_default);
 
-  return t('The data field added to webform2pdf table. Remove unuse db field.');
+  return t('The data field added to webform2pdf table and remove old fields.');
 }
 
 /**
