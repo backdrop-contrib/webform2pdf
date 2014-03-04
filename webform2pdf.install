@@ -318,3 +318,132 @@ function webform2pdf_update_7400() {
 
   return t('The data field added to webform2pdf table. Remove unuse db field.');
 }
+
+/**
+ * Rewrite token replacement system to use D7 tokens.
+ */
+function webform2pdf_update_7401(&$sandbox) {
+  // Define replacements.
+  $patterns = array(
+    '%username',
+    '%useremail',
+    '%uid',
+    '%date',
+    '%ip_address',
+    '%site',
+    '%nid',
+    '%title',
+    '%email_values',
+    '%submission_url',
+    '%sid',
+    '%server[REQUEST_URI]',
+    '][', // Used to convert nested arrays of %value and %email.
+  );
+  $replacements = array(
+    '[current-user:name]',
+    '[current-user:mail]',
+    '[current-user:uid]',
+    '[submission:date:long]',
+    '[current-user:ip-address]',
+    '[site:name]',
+    '[node:nid]',
+    '[node:title]',
+    '[submission:values]',
+    '[submission:url]',
+    '[submission:sid]',
+    '[current-page:url]',
+    ':', // Replace "][" with ":" for %value and %email.
+  );
+  $dpatterns = array(
+    '/%get\[([^\]]+)\]/m',
+    '/%email\[([^% \n\r\t]+)?\]/m',
+    '/%value\[([^% \n\r\t]+)?\]/m',
+    '/%profile\[([^\]]+)\]/m',
+    '/\[submission:values(:(?!nolabel)[a-z_]+)+\]/m',
+    '/\[submission:values(:([a-z_:]+))?:nolabel\]/m',
+    '/%label_nl\[([^% \n\r\t]+)?\]/m',
+    '/%label_all\[([^% \n\r\t]+)?\]/m',
+    '/%label_all_nl\[([^% \n\r\t]+)?\]/m',
+    '/%nl\[([^% \n\r\t]+)?\]/m',
+    '/%all\[([^% \n\r\t]+)?\]/m',
+    '/%all_nl\[([^% \n\r\t]+)?\]/m',
+  );
+  $dreplacements = array(
+    '[current-page:query:$1]',
+    '[submission:values:$1]',
+    '[submission:values:$1:nolabel]',
+    '[current-user:$1]',
+    '[submission:values$1:withlabel]',
+    '[submission:values$1]',
+    '[submission:nl:$1:withlabel]',
+    '[submission:all:$1:withlabel]',
+    '[submission:all-nl:$1:withlabel]',
+    '[submission:nl:$1:nolabel]',
+    '[submission:all:$1:nolabel]',
+    '[submission:all-nl:$1:nolabel]',
+  );
+
+  $limit = variable_get('webform_update_batch_size', 100);
+  $processed_count = _webform2pdf_update_7401_batch($sandbox, $patterns, $replacements, $dpatterns, $dreplacements, $limit);
+
+  // If less than limit was processed, the update process is finished.
+  if ($processed_count < $limit || $sandbox['progress'] == $sandbox['max']) {
+    $finished = TRUE;
+  }
+
+  // If there's no max value then there's nothing to update and we're finished.
+  if (empty($sandbox['max']) || isset($finished)) {
+    return t('Replaced tokens using [submission:values:x] with [submission:values:x:withlabel].');
+  }
+  else {
+    // Indicate our current progress to the batch update system.
+    $sandbox['#finished'] = $sandbox['progress'] / $sandbox['max'];
+  }
+}
+
+/**
+ * Utility function to update all the locations that use tokens.
+ */
+function _webform2pdf_update_7401_batch(&$sandbox, $patterns, $replacements, $dpatterns, $dreplacements, $limit) {
+  // Set up the initial batch process.
+  if (!isset($sandbox['progress'])) {
+    $sandbox['progress'] = 0;
+    $sandbox['last_nid_processed'] = -1;
+    $sandbox['max'] = db_select('webform2pdf')
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+
+    $w2pdf_default = variable_get('webform2pdf_default', array());
+    $p_body = $w2pdf_default['p_body']['value'];
+    $p_body = str_replace($patterns, $replacements, $p_body);
+    $p_body = preg_replace($dpatterns, $dreplacements, $p_body);
+    $w2pdf_default['p_body']['value'] = $p_body;
+    variable_set('webform2pdf_default', $w2pdf_default);
+  }
+
+  $webform2pdf_settings = db_select('webform2pdf', 'w2p')
+    ->fields('w2p')
+    ->condition('nid', $sandbox['last_nid_processed'], '>')
+    ->orderBy('nid', 'ASC')
+    ->range(0, $limit)
+    ->execute()
+    ->fetchAllAssoc('nid', PDO::FETCH_ASSOC);
+
+  foreach ($webform2pdf_settings as $nid => $webform2pdf_setting) {
+    // Update the webform record itself.
+    $data = unserialize($webform2pdf_setting['data']);
+
+    $data['p_body'] = str_replace($patterns, $replacements, $data['p_body']);
+    $data['p_body'] = preg_replace($dpatterns, $dreplacements, $data['p_body']);
+    $webform2pdf_setting['data'] = $data;
+
+    drupal_write_record('webform2pdf', $webform2pdf_setting, array('nid'));
+
+    // Update the last processed NID.
+    $sandbox['last_nid_processed'] = $nid;
+    $sandbox['progress']++;
+  }
+
+  return count($webform2pdf_settings);
+}
