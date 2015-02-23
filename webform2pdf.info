@@ -10,3 +10,4 @@ configure = admin/config/content/webform2pdf
 
 ; Files that contain classes:
 files[] = webform2pdf.class.inc
+files[] = views/webform2pdf_handler_field_submission_download_pdf.inc
