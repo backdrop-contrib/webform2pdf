@@ -255,10 +255,14 @@ function webform2pdf_get_setting($nid) {
     ->execute()
     ->fetchAssoc();
 
-  $data = unserialize($default['data']);
-  unset($default['data']);
+  if ($default) {
+    $data = unserialize($default['data']);
+    unset($default['data']);
 
-  return array_merge($default, $data);
+    return array_merge($default, $data);
+  }
+
+  return array();
 } // function webform2pdf_enabled_pdf_access()
 
 /**
