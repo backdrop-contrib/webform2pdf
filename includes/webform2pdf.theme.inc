@@ -216,6 +216,9 @@ function theme_webform2pdf_pdf_content($vars) {
 function theme_webform2pdf_content($vars) {
   $email = array(
     'html' => 'text',
+    // Undefined index: "exclude_empty" in Webform module.
+    // @see https://www.drupal.org/node/2499749
+    'exclude_empty' => 1,
     'excluded_components' => array(),
   );
 
