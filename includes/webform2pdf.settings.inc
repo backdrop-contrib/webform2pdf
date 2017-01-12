@@ -427,6 +427,27 @@ function webform2pdf_admin_settings($form, &$form_state) {
     );
   }
 
+  $form['url_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('URL settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#states' => array(
+      'visible' => array(
+        'input[name="enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  $form['url_settings']['url_prefix'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Type the URL prefix'),
+    '#required' => TRUE,
+    '#description' => t('This prefix will be used for generating an unique URLs to PDF'),
+    '#field_suffix' => '/',
+    '#default_value' => $default['url_prefix'],
+  );
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
