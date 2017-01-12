@@ -166,7 +166,10 @@ function webform2pdf_preprocess_webform_results_submissions(&$vars) {
  */
 function _webform2pdf_get_template($nid) {
   $setting = webform2pdf_get_setting($nid);
-  $setting['p_body']['value'] = check_markup($setting['p_body']['value'], $setting['p_body']['format'], FALSE);
+
+  if (isset($setting['p_body']['value'])) {
+    $setting['p_body']['value'] = check_markup($setting['p_body']['value'], $setting['p_body']['format'], FALSE);
+  }
 
   return $setting;
 } // function _webform2pdf_get_template()
