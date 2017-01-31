@@ -5,6 +5,33 @@
  */
 
 /**
+ * Get the available fonts for the admin form.
+ *
+ * @param string $region
+ *   Region of the PDF - e.g. 'header'. This is only for alter hooks.
+ *
+ * @return array
+ *   An array of available fonts in the format font_name => Font Name.
+ */
+function _webform2pdf_get_available_fonts($region) {
+  $fonts = array(
+    'helvetica' => 'Helvetica',
+    'times' => 'Times',
+    'courier' => 'Courier',
+    'dejavusans' => 'Dejavu Sans',
+    'dejavuserif' => 'Dejavu Serif',
+    'freesans' => 'Free Sans',
+    'freeserif' => 'Free Serif',
+    'freemono' => 'Free Mono',
+  );
+
+  // Allow other modules to alter the available fonts.
+  drupal_alter('webform2pdf_available_fonts', $fonts, $region);
+
+  return $fonts;
+}
+
+/**
  * Overview form of all components for this webform.
  */
 function webform2pdf_admin_settings($form, &$form_state) {
@@ -195,16 +222,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
     '#type' => 'select',
     '#title' => t('Font Family'),
     '#default_value' => $default['h_font_family'],
-    '#options' => array(
-      'helvetica' => 'Helvetica',
-      'times' => 'Times',
-      'courier' => 'Courier',
-      'dejavusans' => 'Dejavu Sans',
-      'dejavuserif' => 'Dejavu Serif',
-      'freesans' => 'Free Sans',
-      'freeserif' => 'Free Serif',
-      'freemono' => 'Free Mono',
-    ),
+    '#options' => _webform2pdf_get_available_fonts('header'),
     '#description' => t('Set the font family to be used.'),
   );
 
@@ -284,16 +302,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
     '#type' => 'select',
     '#title' => t('Font Family'),
     '#default_value' => $default['p_font_family'],
-    '#options' => array(
-      'helvetica' => 'Helvetica',
-      'times' => 'Times',
-      'courier' => 'Courier',
-      'dejavusans' => 'Dejavu Sans',
-      'dejavuserif' => 'Dejavu Serif',
-      'freesans' => 'Free Sans',
-      'freeserif' => 'Free Serif',
-      'freemono' => 'Free Mono',
-    ),
+    '#options' => _webform2pdf_get_available_fonts('page'),
     '#description' => t('Set the font family to be used.'),
   );
 
@@ -371,16 +380,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
     '#type' => 'select',
     '#title' => t('Font Family'),
     '#default_value' => $default['f_font_family'],
-    '#options' => array(
-      'helvetica' => 'Helvetica',
-      'times' => 'Times',
-      'courier' => 'Courier',
-      'dejavusans' => 'Dejavu Sans',
-      'dejavuserif' => 'Dejavu Serif',
-      'freesans' => 'Free Sans',
-      'freeserif' => 'Free Serif',
-      'freemono' => 'Free Mono',
-    ),
+    '#options' => _webform2pdf_get_available_fonts('footer'),
     '#description' => t('Set the font family to be used.'),
   );
 
@@ -762,16 +762,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     '#type' => 'select',
     '#title' => t('Font Family'),
     '#default_value' => $default['h_font_family'],
-    '#options' => array(
-      'helvetica' => 'Helvetica',
-      'times' => 'Times',
-      'courier' => 'Courier',
-      'dejavusans' => 'Dejavu Sans',
-      'dejavuserif' => 'Dejavu Serif',
-      'freesans' => 'Free Sans',
-      'freeserif' => 'Free Serif',
-      'freemono' => 'Free Mono',
-    ),
+    '#options' => _webform2pdf_get_available_fonts('header'),
     '#description' => t('Set the font family to be used.'),
   );
 
@@ -856,16 +847,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     '#type' => 'select',
     '#title' => t('Font Family'),
     '#default_value' => $default['p_font_family'],
-    '#options' => array(
-      'helvetica' => 'Helvetica',
-      'times' => 'Times',
-      'courier' => 'Courier',
-      'dejavusans' => 'Dejavu Sans',
-      'dejavuserif' => 'Dejavu Serif',
-      'freesans' => 'Free Sans',
-      'freeserif' => 'Free Serif',
-      'freemono' => 'Free Mono',
-    ),
+    '#options' => _webform2pdf_get_available_fonts('page'),
     '#description' => t('Set the font family to be used.'),
   );
 
@@ -948,16 +930,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     '#type' => 'select',
     '#title' => t('Font Family'),
     '#default_value' => $default['f_font_family'],
-    '#options' => array(
-      'helvetica' => 'Helvetica',
-      'times' => 'Times',
-      'courier' => 'Courier',
-      'dejavusans' => 'Dejavu Sans',
-      'dejavuserif' => 'Dejavu Serif',
-      'freesans' => 'Free Sans',
-      'freeserif' => 'Free Serif',
-      'freemono' => 'Free Mono',
-    ),
+    '#options' => _webform2pdf_get_available_fonts('footer'),
     '#description' => t('Set the font family to be used.'),
   );
 
