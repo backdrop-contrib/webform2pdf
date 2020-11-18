@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Views handler to download pdf link to a submission.
@@ -13,7 +12,7 @@ class webform2pdf_handler_field_submission_download_pdf extends views_handler_fi
 
   function construct() {
     // We need to set this property before calling the construct() chain
-    // as we use it in the option_definintion() call.
+    // as we use it in the option_definition() call.
     $this->link_type = $this->definition['link_type'];
 
     parent::construct();
@@ -27,8 +26,14 @@ class webform2pdf_handler_field_submission_download_pdf extends views_handler_fi
 
   function option_definition() {
     $options = parent::option_definition();
-    $options['label'] = array('default' => '', 'translatable' => TRUE);
-    $options['text'] = array('default' => $this->link_type, 'translatable' => TRUE);
+    $options['label'] = array(
+      'default' => '',
+      'translatable' => TRUE,
+    );
+    $options['text'] = array(
+      'default' => $this->link_type,
+      'translatable' => TRUE,
+    );
     $options['access_check'] = array('default' => TRUE);
     return $options;
   }

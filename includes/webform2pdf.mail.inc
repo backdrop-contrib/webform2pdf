@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function webform2pdf_send2pdf($node, $submission) {
   $webform2pdf = _webform2pdf_get_template($node->nid);
   $nopdf = array();

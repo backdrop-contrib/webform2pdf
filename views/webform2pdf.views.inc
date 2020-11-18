@@ -8,7 +8,7 @@
 /**
  * Implements hook_views_data_alter().
  */
-function webform2pdf_views_data_alter(&$data){
+function webform2pdf_views_data_alter(&$data) {
   // View submission link.
   $data['webform_submissions']['download_pdf'] = array(
     'title' => t('Download PDF'),
@@ -31,7 +31,7 @@ function webform2pdf_views_data_alter(&$data){
  */
 function webform2pdf_views_default_views_alter(&$views) {
   if (isset($views['webform_submissions'])) {
-    $handler =& $views['webform_submissions']->display['default']->handler;
+    $handler = &$views['webform_submissions']->display['default']->handler;
     $download_pdf = array(
       'id' => 'download_pdf',
       'table' => 'webform_submissions',

@@ -4,7 +4,7 @@
  * @file
  *   Webform2pdf module W2PDF object class.
  */
-include_once(libraries_get_path('tcpdf') . '/tcpdf.php');
+include_once(backdrop_get_path('module', 'webform2pdf') . '/lib/tcpdf/tcpdf.php');
 
 class W2PDF extends TCPDF {
 
@@ -57,7 +57,7 @@ class W2PDF extends TCPDF {
    * @param string $hs string to print on document header
    * @param string $hsa align string to print on document header
    */
-  public function setHeaderData($ln = array(), $ls = array(), $hs = '', $hsa = '', $tc=array(0,0,0), $lc=array(0,0,0), $background = NULL) {
+  public function setHeaderData($ln = array(), $ls = array(), $hs = '', $hsa = '', $tc = array(0, 0, 0), $lc = array(0, 0, 0), $background = NULL) {
     $this->header_logo = $ln;
     $this->header_logo_size = $ls;
     $this->header_string = $hs;
@@ -89,7 +89,7 @@ class W2PDF extends TCPDF {
    * @param string $hs string to print on document footer
    * @param string $hsa align string to print on document footer
    */
-  public function setFooterData($ln=array(), $ls=array(), $hs='', $hsa='') {
+  public function setFooterData($ln = array(), $ls = array(), $hs = '', $hsa = '') {
     $this->footer_logo = $ln;
     $this->footer_logo_size = $ls;
     $this->footer_string = $hs;
@@ -125,17 +125,17 @@ class W2PDF extends TCPDF {
     $empty_header = 1;
 
     if ($headerdata['background']) {
-       // get the current page break margin
+      // get the current page break margin
       $bMargin = $this->getBreakMargin();
-       // get current auto-page-break mode
+      // get current auto-page-break mode
       $auto_page_break = $this->AutoPageBreak;
-       // disable auto-page-break
+      // disable auto-page-break
       $this->SetAutoPageBreak(false, 0);
-       //Image($file, $x='', $y='', $w=0, $h=0, $type='', $link='', $align='', $resize=false, $dpi=300, $palign='', $ismask=false, $imgmask=false, $border=0, $fitbox=false, $hidden=false, $fitonpage=false, $alt=false, $altimgs=array())
+      //Image($file, $x='', $y='', $w=0, $h=0, $type='', $link='', $align='', $resize=false, $dpi=300, $palign='', $ismask=false, $imgmask=false, $border=0, $fitbox=false, $hidden=false, $fitonpage=false, $alt=false, $altimgs=array())
       $this->Image($headerdata['background'], 0, 0, $this->w, $this->h, '', '', '', false, 300, '', false, false, 0);
-       // restore auto-page-break status
+      // restore auto-page-break status
       $this->SetAutoPageBreak($auto_page_break, $bMargin);
-       // set the starting point for the page content
+      // set the starting point for the page content
       $this->setPageMark();
     }
 
@@ -192,7 +192,7 @@ class W2PDF extends TCPDF {
     if ( !$empty_header ) {
       $this->Cell(0, 0, '', 'T', 0, 'C');
     }
-    $this->SetTopMargin($this->GetY()+1);
+    $this->SetTopMargin($this->GetY() + 1);
   }
 
   /**
@@ -256,7 +256,10 @@ class W2PDF extends TCPDF {
     $this->SetLineStyle(array('width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
 
     // footer html string
-    $page_var = array("%pagenumber" => $this->PageNoFormatted(), "%totalpage" => $this->getAliasNbPages());
+    $page_var = array(
+      "%pagenumber" => $this->PageNoFormatted(),
+      "%totalpage" => $this->getAliasNbPages(),
+    );
     $footerdata['string'] = strtr($footerdata['string'], $page_var);
     $this->SetFont($footerfont[0], $footerfont[1], $footerfont[2]);
 

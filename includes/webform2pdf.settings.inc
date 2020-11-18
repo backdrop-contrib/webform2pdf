@@ -26,7 +26,7 @@ function _webform2pdf_get_available_fonts($region) {
   );
 
   // Allow other modules to alter the available fonts.
-  drupal_alter('webform2pdf_available_fonts', $fonts, $region);
+  backdrop_alter('webform2pdf_available_fonts', $fonts, $region);
 
   return $fonts;
 }
@@ -35,7 +35,7 @@ function _webform2pdf_get_available_fonts($region) {
  * Overview form of all components for this webform.
  */
 function webform2pdf_admin_settings($form, &$form_state) {
-  $default = variable_get('webform2pdf_default', '');
+  $default = config_get('webform2pdf.settings', 'webform2pdf_default');
   // It is needed because of file upload
   $form['#attributes'] = array('enctype' => 'multipart/form-data');
   $form['base'] = array(
@@ -51,7 +51,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
     '#default_value' => $default['pdf_send_email'],
   );
 
-   //background image
+  //background image
   $form['base']['p_background'] = array(
     '#type' => 'value',
     '#value' => $default['p_background'],
@@ -91,20 +91,55 @@ function webform2pdf_admin_settings($form, &$form_state) {
     '#title' => t('Paper size'),
     '#default_value' => $default['page_format'],
     '#options' => array(
-      '4A0' => '4A0', '2A0' => '2A0', 'A0' => 'A0',
-      'A1' => 'A1', 'A2' => 'A2', 'A3' => 'A3', 'A4' => 'A4',
-      'A5' => 'A5', 'A6' => 'A6', 'A7' => 'A7', 'A8' => 'A8',
-      'A9' => 'A9', 'A10' => 'A10', 'B0' => 'B0', 'B1' => 'B1',
-      'B2' => 'B2', 'B3' => 'B3', 'B4' => 'B4', 'B5' => 'B5',
-      'B6' => 'B6', 'B7' => 'B7', 'B8' => 'B8', 'B9' => 'B9',
-      'B10' => 'B10', 'C0' => 'C0', 'C1' => 'C1', 'C2' => 'C2',
-      'C3' => 'C3', 'C4' => 'C4', 'C5' => 'C5', 'C6' => 'C6',
-      'C7' => 'C7', 'C8' => 'C8', 'C9' => 'C9', 'C10' => 'C10',
-      'RA0' => 'RA0', 'RA1' => 'RA1', 'RA2' => 'RA2',
-      'RA3' => 'RA3', 'RA4' => 'RA4', 'SRA0' => 'SRA0',
-      'SRA1' => 'SRA1', 'SRA2' => 'SRA2', 'SRA3' => 'SRA3',
-      'SRA4' => 'SRA4', 'LETTER' => t('Letter'), 'LEGAL' => t('Legal'),
-      'EXECUTIVE' => t('Executive'), 'FOLIO' => t('Folio'),
+      '4A0' => '4A0',
+      '2A0' => '2A0',
+      'A0' => 'A0',
+      'A1' => 'A1',
+      'A2' => 'A2',
+      'A3' => 'A3',
+      'A4' => 'A4',
+      'A5' => 'A5',
+      'A6' => 'A6',
+      'A7' => 'A7',
+      'A8' => 'A8',
+      'A9' => 'A9',
+      'A10' => 'A10',
+      'B0' => 'B0',
+      'B1' => 'B1',
+      'B2' => 'B2',
+      'B3' => 'B3',
+      'B4' => 'B4',
+      'B5' => 'B5',
+      'B6' => 'B6',
+      'B7' => 'B7',
+      'B8' => 'B8',
+      'B9' => 'B9',
+      'B10' => 'B10',
+      'C0' => 'C0',
+      'C1' => 'C1',
+      'C2' => 'C2',
+      'C3' => 'C3',
+      'C4' => 'C4',
+      'C5' => 'C5',
+      'C6' => 'C6',
+      'C7' => 'C7',
+      'C8' => 'C8',
+      'C9' => 'C9',
+      'C10' => 'C10',
+      'RA0' => 'RA0',
+      'RA1' => 'RA1',
+      'RA2' => 'RA2',
+      'RA3' => 'RA3',
+      'RA4' => 'RA4',
+      'SRA0' => 'SRA0',
+      'SRA1' => 'SRA1',
+      'SRA2' => 'SRA2',
+      'SRA3' => 'SRA3',
+      'SRA4' => 'SRA4',
+      'LETTER' => t('Letter'),
+      'LEGAL' => t('Legal'),
+      'EXECUTIVE' => t('Executive'),
+      'FOLIO' => t('Folio'),
     ),
   );
 
@@ -295,7 +330,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
       'L' => t('Align left'),
       'C' => t('Align center'),
       'R' => t('Align right'),
-      ),
+    ),
   );
 
   $form['page']['p_font_family'] = array(
@@ -459,6 +494,10 @@ function webform2pdf_admin_settings($form, &$form_state) {
 /*
  * webform2pdf_admin_settings_validate: Implements validate hook
  */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function webform2pdf_admin_settings_validate($form, &$form_state) {
   foreach (array('h_left_logo_size', 'h_right_logo_size', 'f_left_logo_size', 'f_right_logo_size') as $logo_size) {
     if ( !preg_match("/^\d+x\d+$/", $form_state['values'][$logo_size]) ) {
@@ -480,6 +519,10 @@ function webform2pdf_admin_settings_validate($form, &$form_state) {
 
 /*
  * webform2pdf_admin_settings_submit: Implements submit hook
+ */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
  */
 function webform2pdf_admin_settings_submit($form, &$form_state) {
   // File deleted.
@@ -518,24 +561,42 @@ function webform2pdf_admin_settings_submit($form, &$form_state) {
   }
 
   $save = $form_state['values'];
-  foreach (array('h_left_logo_del', 'h_right_logo_del', 'f_left_logo_del', 'f_right_logo_del',
-    'h_left_logo_img', 'h_right_logo_img', 'f_left_logo_img', 'f_right_logo_img',
-    'h_left_logo_file', 'h_right_logo_file', 'f_left_logo_file', 'f_right_logo_file',
-    'op', 'submit', 'form_build_id', 'form_token', 'form_id','p_background_del','p_background_file') as $del) {
+  foreach (array(
+    'h_left_logo_del',
+    'h_right_logo_del',
+    'f_left_logo_del',
+    'f_right_logo_del',
+    'h_left_logo_img',
+    'h_right_logo_img',
+    'f_left_logo_img',
+    'f_right_logo_img',
+    'h_left_logo_file',
+    'h_right_logo_file',
+    'f_left_logo_file',
+    'f_right_logo_file',
+    'op',
+    'submit',
+    'form_build_id',
+    'form_token',
+    'form_id',
+    'p_background_del',
+    'p_background_file',
+  ) as $del) {
     unset($save[$del]);
   }
 
-  variable_set('webform2pdf_default', $save);
+  config_set('webform2pdf.settings', 'webform2pdf_default', $save);
 } // function webform2pdf_admin_settings_submit()
 
 /**
  * Overview form of all components for this webform.
  */
 function webform2pdf_edit_form($form, &$form_state, $node) {
+  $config = config('webform2pdf.settings');
   $default = webform2pdf_get_setting($node->nid);
 
   if (!$default) {
-    $default = variable_get('webform2pdf_default', '');
+    $default = $config->get('webform2pdf_default');
     $default['enabled'] = 0;
   }
 
@@ -545,7 +606,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     '#title' => t('Generate PDF Document.'),
   );
 
-  $webform2pdf_default = variable_get('webform2pdf_default', '');
+  $webform2pdf_default = $config->get('webform2pdf_default');
 
   // Needed because of file upload
   $form['#attributes'] = array('enctype' => 'multipart/form-data');
@@ -567,33 +628,88 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     '#title' => t('Paper size'),
     '#default_value' => $default['page_format'],
     '#options' => array(
-      '4A0' => '4A0', '2A0' => '2A0', 'A0' => 'A0',
-      'A1' => 'A1', 'A2' => 'A2', 'A3' => 'A3', 'A4' => 'A4',
-      'A5' => 'A5', 'A6' => 'A6', 'A7' => 'A7', 'A8' => 'A8',
-      'A9' => 'A9', 'A10' => 'A10', 'A11' => 'A11', 'A12' => 'A12',
-      'B0' => 'B0', 'B1' => 'B1', 'B2' => 'B2', 'B3' => 'B3',
-      'B4' => 'B4', 'B5' => 'B5', 'B6' => 'B6', 'B7' => 'B7',
-      'B8' => 'B8', 'B9' => 'B9', 'B10' => 'B10', 'B11' => 'B11',
+      '4A0' => '4A0',
+      '2A0' => '2A0',
+      'A0' => 'A0',
+      'A1' => 'A1',
+      'A2' => 'A2',
+      'A3' => 'A3',
+      'A4' => 'A4',
+      'A5' => 'A5',
+      'A6' => 'A6',
+      'A7' => 'A7',
+      'A8' => 'A8',
+      'A9' => 'A9',
+      'A10' => 'A10',
+      'A11' => 'A11',
+      'A12' => 'A12',
+      'B0' => 'B0',
+      'B1' => 'B1',
+      'B2' => 'B2',
+      'B3' => 'B3',
+      'B4' => 'B4',
+      'B5' => 'B5',
+      'B6' => 'B6',
+      'B7' => 'B7',
+      'B8' => 'B8',
+      'B9' => 'B9',
+      'B10' => 'B10',
+      'B11' => 'B11',
       'B12' => 'B12',
-      'C0' => 'C0', 'C1' => 'C1', 'C2' => 'C2', 'C3' => 'C3',
-      'C4' => 'C4', 'C5' => 'C5', 'C6' => 'C6', 'C7' => 'C7',
-      'C8' => 'C8', 'C9' => 'C9', 'C10' => 'C10', 'C11' => 'C11',
+      'C0' => 'C0',
+      'C1' => 'C1',
+      'C2' => 'C2',
+      'C3' => 'C3',
+      'C4' => 'C4',
+      'C5' => 'C5',
+      'C6' => 'C6',
+      'C7' => 'C7',
+      'C8' => 'C8',
+      'C9' => 'C9',
+      'C10' => 'C10',
+      'C11' => 'C11',
       'C12' => 'C12',
       'DL' => 'DL',
-      'E0' => 'E0', 'E1' => 'E1', 'E2' => 'E2', 'E3' => 'E3',
-      'E4' => 'E4', 'E5' => 'E5', 'E6' => 'E6', 'E7' => 'E7',
-      'E8' => 'E8', 'E9' => 'E9', 'E10' => 'E10', 'E11' => 'E11',
+      'E0' => 'E0',
+      'E1' => 'E1',
+      'E2' => 'E2',
+      'E3' => 'E3',
+      'E4' => 'E4',
+      'E5' => 'E5',
+      'E6' => 'E6',
+      'E7' => 'E7',
+      'E8' => 'E8',
+      'E9' => 'E9',
+      'E10' => 'E10',
+      'E11' => 'E11',
       'E12' => 'E12',
-      'G0' => 'G0', 'G1' => 'G1', 'G2' => 'G2', 'G3' => 'G3',
-      'G4' => 'G4', 'G5' => 'G5', 'G6' => 'G6', 'G7' => 'G7',
-      'G8' => 'G8', 'G9' => 'G9', 'G10' => 'G10', 'G11' => 'G11',
+      'G0' => 'G0',
+      'G1' => 'G1',
+      'G2' => 'G2',
+      'G3' => 'G3',
+      'G4' => 'G4',
+      'G5' => 'G5',
+      'G6' => 'G6',
+      'G7' => 'G7',
+      'G8' => 'G8',
+      'G9' => 'G9',
+      'G10' => 'G10',
+      'G11' => 'G11',
       'G12' => 'G12',
-      'RA0' => 'RA0', 'RA1' => 'RA1', 'RA2' => 'RA2',
-      'RA3' => 'RA3', 'RA4' => 'RA4',
-      'SRA0' => 'SRA0', 'SRA1' => 'SRA1', 'SRA2' => 'SRA2',
-      'SRA3' => 'SRA3', 'SRA4' => 'SRA4',
-      'LETTER' => t('Letter'), 'LEGAL' => t('Legal'),
-      'EXECUTIVE' => t('Executive'), 'FOLIO' => t('Folio'),
+      'RA0' => 'RA0',
+      'RA1' => 'RA1',
+      'RA2' => 'RA2',
+      'RA3' => 'RA3',
+      'RA4' => 'RA4',
+      'SRA0' => 'SRA0',
+      'SRA1' => 'SRA1',
+      'SRA2' => 'SRA2',
+      'SRA3' => 'SRA3',
+      'SRA4' => 'SRA4',
+      'LETTER' => t('Letter'),
+      'LEGAL' => t('Legal'),
+      'EXECUTIVE' => t('Executive'),
+      'FOLIO' => t('Folio'),
     ),
   );
 
@@ -607,7 +723,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     ),
   );
 
-   //background image
+  //background image
   $form['base']['p_background'] = array(
     '#type' => 'value',
     '#value' => $default['p_background'],
@@ -840,7 +956,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
       'L' => t('Align left'),
       'C' => t('Align center'),
       'R' => t('Align right'),
-      ),
+    ),
   );
 
   $form['page']['p_font_family'] = array(
@@ -1006,6 +1122,10 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
 /*
  * webform2pdf_edit_form_validate: Implements validate hook
  */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function webform2pdf_edit_form_validate($form, &$form_state) {
   if ($form_state['values']['op'] == t('Save')) {
     if (!empty($form_state['values']['h_txt'])) {
@@ -1038,6 +1158,10 @@ function webform2pdf_edit_form_validate($form, &$form_state) {
 
 /*
  * webform2pdf_edit_form_submit: Implements submit hook
+ */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
  */
 function webform2pdf_edit_form_submit($form, &$form_state) {
   if ($form_state['values']['op'] == t('Save')) {
@@ -1078,7 +1202,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
         $w2pdf_setting['nid'] = $form_state['values']['nid'];
         $w2pdf_setting['enabled'] = $form_state['values']['enabled'];
         $w2pdf_setting['data'] = $save;
-        drupal_write_record('webform2pdf', $w2pdf_setting);
+        backdrop_write_record('webform2pdf', $w2pdf_setting);
       }
     }
     else {
@@ -1106,7 +1230,7 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
   }
   else {
     // default settings
-    $save = variable_get('webform2pdf_default', '');
+    $save = config_get('webform2pdf.settings', 'webform2pdf_default');
 
     // Image file deleted.
     foreach (array('h_left_logo', 'h_right_logo', 'f_left_logo', 'f_right_logo', 'p_background') as $logo) {
@@ -1123,12 +1247,12 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
     $w2pdf_setting['nid'] = $form_state['values']['nid'];
     $w2pdf_setting['enabled'] = $form_state['values']['enabled'];
     $w2pdf_setting['data'] = $save;
-    drupal_write_record('webform2pdf', $w2pdf_setting, 'nid');
+    backdrop_write_record('webform2pdf', $w2pdf_setting, 'nid');
   }
 } // function webform2pdf_edit_form_submit()
 
 function _webform2pdf_save_logo($logo, $nid) {
-  $webform2pdf_default = variable_get('webform2pdf_default', '');
+  $webform2pdf_default = config_get('webform2pdf.settings', 'webform2pdf_default');
 
   $validators['file_validate_is_image'] = array();
   if (isset($webform2pdf_default[$logo . '_size'])) {

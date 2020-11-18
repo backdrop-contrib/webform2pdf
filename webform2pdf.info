@@ -1,13 +1,8 @@
 name = WebForm 2 PDF
 description = Generates PDF documents from the submitted webforms.
-core = 7.x
+backdrop = 1.x
+type = module
 package = Webform
 dependencies[] = webform
-dependencies[] = token
-dependencies[] = libraries
 
 configure = admin/config/content/webform2pdf
-
-; Files that contain classes:
-files[] = webform2pdf.class.inc
-files[] = views/webform2pdf_handler_field_submission_download_pdf.inc

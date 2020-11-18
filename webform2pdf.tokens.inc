@@ -106,12 +106,12 @@ function webform2pdf_tokens($type, $tokens, array $values = array(), array $opti
             if (!empty($select_values)) {
               $label_format = isset($parent_token[1]) ? $parent_token[1] : 'withlabel';
               $label = '';
-              if ('label' == $label_format|| 'withlabel' == $label_format) {
+              if ('label' == $label_format || 'withlabel' == $label_format) {
                 $label = _webform_filter_xss($node->webform['components'][$cid]['name']);
               }
 
               $values_output = '';
-              if ('nolabel' == $label_format|| 'withlabel' == $label_format) {
+              if ('nolabel' == $label_format || 'withlabel' == $label_format) {
                 module_load_include('inc', 'webform', 'components/select');
                 $items = _webform_select_options_from_text($node->webform['components'][$cid]['extra']['items']);
 

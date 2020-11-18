@@ -6,7 +6,7 @@
 function _webform2pdf_init_tcpdf($node, $template) {
   global $base_url;
 
-  $tcpdf_dir = libraries_get_path('tcpdf');
+  $tcpdf_dir = backdrop_get_path('module', 'webform2pdf') . '/lib/tcpdf';
 
   if (defined('K_TCPDF_EXTERNAL_CONFIG')) {
     define('K_TCPDF_EXTERNAL_CONFIG', TRUE);
@@ -17,23 +17,25 @@ function _webform2pdf_init_tcpdf($node, $template) {
     define('K_PATH_IMAGES', '');
     define('K_BLANK_IMAGE', $tcpdf_dir . '/images/_blank.png');
     define('K_CELL_HEIGHT_RATIO', 1.25);
-    define('K_SMALL_RATIO', 2/3);
+    define('K_SMALL_RATIO', 2 / 3);
   }
 
   if ( is_file($tcpdf_dir . '/tcpdf.php')   ) {
-    include_once( drupal_get_path('module', 'webform2pdf') . '/webform2pdf.class.inc' );
+    include_once( backdrop_get_path('module', 'webform2pdf') . '/webform2pdf.class.inc' );
 
-    $font = Array(
+    // TODO This variable was probably removed in Backdrop without replacement.
+    // TODO This variable was probably removed in Backdrop without replacement.
+    $font = array(
       variable_get('p_font_family', 'dejavuserif'),
       '',
       variable_get('p_font_size', 12),
     );
 
     // create new PDF document
-    $pdf = new W2PDF($template['page_orientation'] , 'mm', $template['page_format'], TRUE);
+    $pdf = new W2PDF($template['page_orientation'], 'mm', $template['page_format'], TRUE);
 
     // set document information
-    $pdf->SetCreator(variable_get('site_name', 'Drupal'));
+    $pdf->SetCreator(config_get('system.performance', 'site_name'));
     $pdf->SetAuthor($node->name);
     $pdf->SetTitle($node->title);
     $pdf->setPDFVersion('1.6');
@@ -47,6 +49,10 @@ function _webform2pdf_init_tcpdf($node, $template) {
 /*
  * theme_webform2pdf_pdf_init: pdf initializing, theme hook
  */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function theme_webform2pdf_pdf_init($vars) {
   return _webform2pdf_init_tcpdf($vars['node'], $vars['template']);
 } // function theme_webform2pdf_pdf_init()
@@ -58,10 +64,10 @@ function _webform2pdf_pdf_header($pdf, $node, $template) {
   if (!empty($template['h_left_logo'])) {
     $f = file_load($template['h_left_logo']);
     $s = image_get_info($f->uri);
-    $logo['left'] = drupal_realpath($f->uri);
+    $logo['left'] = backdrop_realpath($f->uri);
     // 75dpi image, image size convert millimeter
-    $size['left']['w'] = $s['width']/75*25;
-    $size['left']['h'] = $s['height']/75*25;
+    $size['left']['w'] = $s['width'] / 75 * 25;
+    $size['left']['h'] = $s['height'] / 75 * 25;
   }
   else {
     $logo['left'] = '';
@@ -73,10 +79,10 @@ function _webform2pdf_pdf_header($pdf, $node, $template) {
     $f = file_load($template['h_right_logo']);
     $s = image_get_info($f->uri);
 
-    $logo['right'] = drupal_realpath($f->uri);
+    $logo['right'] = backdrop_realpath($f->uri);
     // 75dpi image, image size convert millimeter
-    $size['right']['w'] = $s['width']/75*25;
-    $size['right']['h'] = $s['height']/75*25;
+    $size['right']['w'] = $s['width'] / 75 * 25;
+    $size['right']['h'] = $s['height'] / 75 * 25;
   }
   else {
     $logo['right'] = '';
@@ -84,9 +90,9 @@ function _webform2pdf_pdf_header($pdf, $node, $template) {
     $size['right']['h'] = 0;
   }
 
-    if (!empty($template['p_background'])) {
+  if (!empty($template['p_background'])) {
     $f = file_load($template['p_background']);
-    $background = drupal_realpath($f->uri);
+    $background = backdrop_realpath($f->uri);
   }
   else {
     $background = NULL;
@@ -108,6 +114,10 @@ function _webform2pdf_pdf_header($pdf, $node, $template) {
 /*
  * _webform2pdf_pdf_header: pdf header theme hook
  */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function theme_webform2pdf_pdf_header($vars) {
   return _webform2pdf_pdf_header($vars['pdf'], $vars['node'], $vars['template']);
 } // function theme_webform2pdf_pdf_header()
@@ -120,10 +130,10 @@ function _webform2pdf_pdf_footer($pdf, $node, $template) {
     $f = file_load($template['f_left_logo']);
     $s = image_get_info($f->uri);
 
-    $logo['left'] = drupal_realpath($f->uri);
+    $logo['left'] = backdrop_realpath($f->uri);
     // 75dpi image, image size convert millimeter
-    $size['left']['w'] = $s['width']/75*25;
-    $size['left']['h'] = $s['height']/75*25;
+    $size['left']['w'] = $s['width'] / 75 * 25;
+    $size['left']['h'] = $s['height'] / 75 * 25;
   }
   else {
     $logo['left'] = '';
@@ -135,10 +145,10 @@ function _webform2pdf_pdf_footer($pdf, $node, $template) {
     $f = file_load($template['f_right_logo']);
     $s = image_get_info($f->uri);
 
-    $logo['right'] = drupal_realpath($f->uri);
+    $logo['right'] = backdrop_realpath($f->uri);
     // 75dpi image, image size convert millimeter
-    $size['right']['w'] = $s['width']/75*25;
-    $size['right']['h'] = $s['height']/75*25;
+    $size['right']['w'] = $s['width'] / 75 * 25;
+    $size['right']['h'] = $s['height'] / 75 * 25;
   }
   else {
     $logo['right'] = '';
@@ -162,6 +172,10 @@ function _webform2pdf_pdf_footer($pdf, $node, $template) {
 
 /*
  * theme_webform2pdf_pdf_footer: pdf footer theme hook
+ */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
  */
 function theme_webform2pdf_pdf_footer($vars) {
   return _webform2pdf_pdf_footer($vars['pdf'], $vars['node'], $vars['template']);
@@ -187,6 +201,10 @@ function _webform2pdf_pdf_page($pdf) {
 /*
  * theme_webform2pdf_pdf_page: pdf page theme hook
  */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function theme_webform2pdf_pdf_page($vars) {
   return _webform2pdf_pdf_page($vars['pdf']);
 } // function theme_webform2pdf_pdf_page()
@@ -209,10 +227,18 @@ function _webform2pdf_pdf_content($pdf, $node, $template) {
 /*
  * theme_webform2pdf_pdf_content: pdf content theme hook
  */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function theme_webform2pdf_pdf_content($vars) {
   return _webform2pdf_pdf_content($vars['pdf'], $vars['node'], $vars['template']);
 } // function theme_webform2pdf_pdf_content()
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function theme_webform2pdf_content($vars) {
   $email = array(
     'html' => 'text',
@@ -227,6 +253,10 @@ function theme_webform2pdf_content($vars) {
 
 /*
  * theme_webform2pdf_mail2pdf(): mail attachment pdf
+ */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
  */
 function theme_webform2pdf_mail2pdf($vars) {
   $node = node_load($vars['nid']);
@@ -254,6 +284,10 @@ function theme_webform2pdf_mail2pdf($vars) {
   }
 } // function theme_webform2pdf_mail2pdf()
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function theme_webform2pdf_filename($vars) {
   $sid = is_object($vars['submission']) ? $vars['submission']->sid : $vars['submission'];
 

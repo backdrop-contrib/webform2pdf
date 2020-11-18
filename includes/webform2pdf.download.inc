@@ -10,6 +10,10 @@
  * webform2pdf_submission_download_pdf: download submission as one PDF file
  * $output_type: Suported type: 'I', 'D', 'S' ( http://www.tcpdf.org/doc/classTCPDF.html#a3d6dcb62298ec9d42e9125ee2f5b23a1 )
  */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function webform2pdf_submission_download_pdf($node, $submission, $output_type = 'I') {
   $output_types = array('I', 'D', 'S');
 
@@ -42,26 +46,26 @@ function webform2pdf_submission_download_pdf($node, $submission, $output_type = 
       switch ($output_type) {
         case 'S':
           return $pdf->Output($filename, 'S');
-        break;
+          break;
 
         case 'I':
           // http header
-          drupal_add_http_header('Content-Type', 'application/pdf');
-          drupal_add_http_header('Cache-Control', 'public, must-revalidate, max-age=0'); // HTTP/1.1
-          drupal_add_http_header('Pragma', 'public');
-          drupal_add_http_header('Content-Disposition', 'inline; filename="' . $filename . '";');
-        break;
+          backdrop_add_http_header('Content-Type', 'application/pdf');
+          backdrop_add_http_header('Cache-Control', 'public, must-revalidate, max-age=0'); // HTTP/1.1
+          backdrop_add_http_header('Pragma', 'public');
+          backdrop_add_http_header('Content-Disposition', 'inline; filename="' . $filename . '";');
+          break;
 
         case 'D':
-          drupal_add_http_header('Content-Description', 'File Transfer');
-          drupal_add_http_header('Cache-Control', 'public, must-revalidate, max-age=0'); // HTTP/1.1
-          drupal_add_http_header('Pragma', 'public');
-          drupal_add_http_header('Content-Type', 'application/pdf');
+          backdrop_add_http_header('Content-Description', 'File Transfer');
+          backdrop_add_http_header('Cache-Control', 'public, must-revalidate, max-age=0'); // HTTP/1.1
+          backdrop_add_http_header('Pragma', 'public');
+          backdrop_add_http_header('Content-Type', 'application/pdf');
 
           // use the Content-Disposition header to supply a recommended filename
-          drupal_add_http_header('Content-Disposition', 'attachment; filename="' . $filename . '";');
-          drupal_add_http_header('Content-Transfer-Encoding', 'binary');
-        break;
+          backdrop_add_http_header('Content-Disposition', 'attachment; filename="' . $filename . '";');
+          backdrop_add_http_header('Content-Transfer-Encoding', 'binary');
+          break;
       }
       // Close and output PDF document
       die($pdf->Output($filename, 'S'));
@@ -71,6 +75,10 @@ function webform2pdf_submission_download_pdf($node, $submission, $output_type = 
 
 /*
  * _webform2pdf_download_pdf_form: Creates a form, where the submissions can be downloaded in PDF format
+ */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
  */
 function webform2pdf_download_pdf_form($form, &$form_state, $node) {
   global $user;
@@ -106,7 +114,7 @@ function webform2pdf_download_pdf_form($form, &$form_state, $node) {
   $form['submissions']['#type'] = 'tableselect';
   $form['submissions']['#header'] = $header;
   $form['submissions']['#options'] = $rows;
-  $form['submissions']['#empty'] = t('There are no submissions for this form. <a href="!url">View this form</a>.', array('!url' => url('node/' . $node->nid)));;
+  $form['submissions']['#empty'] = t('There are no submissions for this form. <a href="!url">View this form</a>.', array('!url' => url('node/' . $node->nid)));
 
   $form['nid'] = array(
     '#type' => 'value',
@@ -123,6 +131,10 @@ function webform2pdf_download_pdf_form($form, &$form_state, $node) {
 
 /*
  * webform2pdf_download_pdf_form_submit: webform2pdf_download_pdf_form of submit hook
+ */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
  */
 function webform2pdf_download_pdf_form_submit($form, &$form_state) {
   // filter zero values
@@ -162,10 +174,10 @@ function webform2pdf_download_pdf_form_submit($form, &$form_state) {
     $filename = theme('webform2pdf_filename', array('node' => $node, 'submission' => time()));
 
     // http header
-    drupal_add_http_header('Content-Type', 'application/pdf');
-    drupal_add_http_header('Cache-Control', 'public, must-revalidate, max-age=0'); // HTTP/1.1
-    drupal_add_http_header('Pragma', 'public');
-    drupal_add_http_header('Content-Disposition', 'inline; filename="' . $filename . '";');
+    backdrop_add_http_header('Content-Type', 'application/pdf');
+    backdrop_add_http_header('Cache-Control', 'public, must-revalidate, max-age=0'); // HTTP/1.1
+    backdrop_add_http_header('Pragma', 'public');
+    backdrop_add_http_header('Content-Disposition', 'inline; filename="' . $filename . '";');
 
     // Close and output PDF document
     die($pdf->Output($filename, 'S'));
@@ -174,6 +186,10 @@ function webform2pdf_download_pdf_form_submit($form, &$form_state) {
 
 /*
  * webform2pdf_url_encode: pdf download anonymous url generation.
+ */
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
  */
 function webform2pdf_url_decode($url) {
   $url = webform2pdf_hash('decrypt', $url);
