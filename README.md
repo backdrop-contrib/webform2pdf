@@ -21,7 +21,7 @@ Additional documentation is located in [the Wiki](https://github.com/backdrop-co
 Differences from Drupal 7
 -------------------------
 
-TBD -- List them here, or remove this section if none.
+TBD
 
 Issues
 ------
@@ -32,6 +32,7 @@ Current Maintainers
 -------------------
 
 - [Robert J. Lang](https://github.com/bugfolder).
+
 Credits
 -------
 
