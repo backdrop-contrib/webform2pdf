@@ -43,7 +43,7 @@ Credits
 License
 -------
 
-This project is GPL v2 software.
+This project is GPL v3 software.
 See the LICENSE.txt file in this directory for the complete text.
 
 TCPDF is LGPL v3 software.
