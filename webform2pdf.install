@@ -14,7 +14,7 @@ function webform2pdf_requirements($phase) {
   $value = $version = '';
 
   if ($phase == 'runtime') {
-    $tcpdf_dir = backdrop_get_path('module', 'webform2pdf') . '/lib/tcpdf';
+    $tcpdf_dir = backdrop_get_path('module', 'webform2pdf') . '/libraries/tcpdf';
 
     if ( !is_file($tcpdf_dir . '/tcpdf.php')   ) {
       $error = TRUE;
@@ -57,7 +57,7 @@ function webform2pdf_requirements($phase) {
  */
 function webform2pdf_install() {
   config_set('webform2pdf.settings', 'webform2pdf_default', array(
-    'pdf_lib' => 'modules/contrib/webform2pdf/lib/tcpdf', // TBD, is this needed?
+    'pdf_lib' => 'modules/contrib/webform2pdf/libraries/tcpdf', // TBD, is this needed?
     'download' => 0,
     'pdf_send_email' => 0,
     'page_format' => 'A4',

@@ -47,4 +47,4 @@ This project is GPL v2 software.
 See the LICENSE.txt file in this directory for the complete text.
 
 TCPDF is LGPL v3 software.
-See the LICENSE.txt file in the /lib/tcpdf/ directory for the complete text.
+See the LICENSE.txt file in the /libraries/tcpdf/ directory for the complete text.
