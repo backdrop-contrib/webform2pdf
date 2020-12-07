@@ -2,6 +2,7 @@
 /**
  * This menu appears only if 'Generate PDF' option is enabled
  */
+
 function webform2pdf_enabled_pdf_access() {
   $param = func_get_args();
 
@@ -18,15 +19,17 @@ function webform2pdf_enabled_pdf_access() {
   return ($row['enabled'] && call_user_func_array($call, $param));
 } // function webform2pdf_enabled_pdf_access()
 
+
 /**
  * Implements hook_config_info().
  */
 function webform2pdf_config_info() {
   $prefixes['webform2pdf.settings'] = array(
-    'label' => t('Module name settings'),
+    'label' => t('Webform2PDF settings'),
     'group' => t('Configuration'),
   );
 }
+
 
 /**
  * Implements hook_menu().
@@ -91,6 +94,7 @@ function webform2pdf_menu() {
   return $items;
 } // function webform2pdf_menu()
 
+
 /**
  * Implements hook_theme().
  */
@@ -133,6 +137,7 @@ function webform2pdf_theme() {
   );
 
 } // function webform2pdf_theme()
+
 
 /**
  * Implements hook_help().
@@ -183,6 +188,7 @@ function _webform2pdf_get_template($nid) {
 
   return $setting;
 } // function _webform2pdf_get_template()
+
 
 /*
  * webform2pdf_mail_alter: hook_mail_alter
@@ -250,6 +256,7 @@ function webform2pdf_mail_alter(&$message) {
   }
 } // function webform2pdf_mail_alter()
 
+
 /*
  * webform2pdf_url_encode: pdf download anonymous url generation.
  */
@@ -268,6 +275,7 @@ function webform2pdf_url_encode($nid, $sid, $encode = TRUE) {
 
   return $url;
 } // function webform2pdf_url_encode()
+
 
 /**
  * Encrypt/decrypt user input.
@@ -297,6 +305,7 @@ function webform2pdf_hash($action, $string) {
   return FALSE;
 }
 
+
 /**
  * Get webform2pdf setting.
  */
@@ -317,6 +326,7 @@ function webform2pdf_get_setting($nid) {
   return array();
 } // function webform2pdf_enabled_pdf_access()
 
+
 /**
  * Implements hook_views_api().
  */
@@ -326,6 +336,7 @@ function webform2pdf_views_api() {
     'path' => backdrop_get_path('module', 'webform2pdf') . '/views',
   );
 }
+
 
 /**
  * Implements hook_autoload_info().
