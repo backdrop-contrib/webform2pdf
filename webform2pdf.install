@@ -83,6 +83,7 @@ function webform2pdf_update_1000() {
     update_variable_get('webform2pdf_default', _webform2pdf_default()));
   $config->set('webform2pdf_key',
     update_variable_get('webform2pdf_key', ''));
+  $config->save();
   update_variable_del('webform2pdf_default');
   update_variable_del('webform2pdf_key');
 }
