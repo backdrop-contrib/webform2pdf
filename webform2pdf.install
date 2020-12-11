@@ -4,92 +4,12 @@
  *   Webform2pdf module install/schema hooks.
  */
 
-/**
- * Implements hook_requirements().
- */
-function webform2pdf_requirements($phase) {
-  $requirements = array();
-  $t = get_t();
-  $error = FALSE;
-  $value = $version = '';
-
-  if ($phase == 'runtime') {
-    $tcpdf_dir = backdrop_get_path('module', 'webform2pdf') . '/libraries/tcpdf';
-
-    if ( !is_file($tcpdf_dir . '/tcpdf.php')   ) {
-      $error = TRUE;
-      $value = $t('The Webform2PDF module requires you to !link.', array('!link' => l($t('set the TCPDF library directory'), 'admin/settings/webform2pdf')));
-    }
-    else {
-      include_once($tcpdf_dir . '/tcpdf.php' );
-      if (class_exists('TCPDF_STATIC')) {
-        $version = TCPDF_STATIC::getTCPDFVersion();
-      }
-
-      if (version_compare('6.0.000', $version) >= 0) {
-        $error = TRUE;
-        $value = $t('The Webform2PDF module requires !TCPDF 6.0.000 or later, your version: !ver.', array('!TCPDF' => l('TCPDF', 'http://www.tcpdf.org/'), '!ver' => $version));
-      }
-    }
-  }
-
-  if ($error) {
-    $requirements['webform2pdf_tcpdf_library'] = array(
-      'title' => $t('TCPDF Library requirements'),
-      'value' => $value,
-      'severity' => REQUIREMENT_ERROR,
-    );
-  }
-  else {
-    $requirements['webform2pdf_tcpdf_library'] = array(
-      'title' => $t('TCPDF Library version'),
-      'value' => $version,
-      'severity' => REQUIREMENT_OK,
-    );
-  }
-
-  return $requirements;
-}
-
 
 /**
  * Implements hook_install().
  */
 function webform2pdf_install() {
-  config_set('webform2pdf.settings', 'webform2pdf_default', array(
-    'pdf_lib' => 'modules/contrib/webform2pdf/libraries/tcpdf', // TBD, is this needed?
-    'download' => 0,
-    'pdf_send_email' => 0,
-    'page_format' => 'A4',
-    'page_orientation' => 'P',
-    'h_left_logo' => 0,
-    'h_right_logo' => 0,
-    'f_left_logo' => 0,
-    'f_right_logo' => 0,
-    'h_font_size' => 10,
-    'p_font_size' => 12,
-    'f_font_size' => 10,
-    'h_txt_align' => 'L',
-    'h_font_family' => 'dejavuserif',
-    'p_txt_align' => 'L',
-    'p_font_family' => 'dejavuserif',
-    'f_txt_align' => 'L',
-    'f_font_family' => 'dejavuserif',
-    'h_txt' => '',
-    'f_txt' => '',
-    'p_body' => array(
-      'value' => '[submission:values]',
-      'format' => 'filtered_html',
-    ),
-    'h_left_logo_size' => '270x205',
-    'h_right_logo_size' => '270x205',
-    'f_left_logo_size' => '270x56',
-    'f_right_logo_size' => '270x56',
-    'p_background' => 0,
-    'url_prefix' => 'webform2pdf',
-  ));
-  // Dynamically generated variable data was detected on the following lines.
-  // /webform2pdf/webform2pdf.module line 245
+  config_set('webform2pdf.settings', 'webform2pdf_default', _webform2pdf_default());
 }
 
 
@@ -108,7 +28,7 @@ function webform2pdf_enable() {
  * Implements hook_uninstall().
  */
 function webform2pdf_uninstall() {
-  config_clear('webform2pdf.settings', 'webform2pdf_default');
+  config('webform2pdf.settings')->delete();
 }
 
 
@@ -155,12 +75,52 @@ function webform2pdf_update_last_removed() {
 
 
 /**
- * Implements hook_update_N().
+ * Convert Webform2PDF variables to config.
  */
 function webform2pdf_update_1000() {
   $config = config('webform2pdf.settings');
-  $config->set('webform2pdf_default', update_variable_get('webform2pdf_default', 'dynamic value in file /webform2pdf/webform2pdf.module line 245'));
-  $config->set('webform2pdf_key', update_variable_get('webform2pdf_key', ''));
+  $config->set('webform2pdf_default',
+    update_variable_get('webform2pdf_default', _webform2pdf_default()));
+  $config->set('webform2pdf_key',
+    update_variable_get('webform2pdf_key', ''));
   update_variable_del('webform2pdf_default');
   update_variable_del('webform2pdf_key');
+}
+
+
+/**
+ * Return default value for config/variable webform2pdf_default.
+ */
+function _webform2pdf_default() {
+  return array(
+    'download' => 0,
+    'pdf_send_email' => 0,
+    'page_format' => 'A4',
+    'page_orientation' => 'P',
+    'h_left_logo' => 0,
+    'h_right_logo' => 0,
+    'f_left_logo' => 0,
+    'f_right_logo' => 0,
+    'h_font_size' => 10,
+    'p_font_size' => 12,
+    'f_font_size' => 10,
+    'h_txt_align' => 'L',
+    'h_font_family' => 'dejavuserif',
+    'p_txt_align' => 'L',
+    'p_font_family' => 'dejavuserif',
+    'f_txt_align' => 'L',
+    'f_font_family' => 'dejavuserif',
+    'h_txt' => '',
+    'f_txt' => '',
+    'p_body' => array(
+      'value' => '[submission:values]',
+      'format' => 'filtered_html',
+    ),
+    'h_left_logo_size' => '270x205',
+    'h_right_logo_size' => '270x205',
+    'f_left_logo_size' => '270x56',
+    'f_right_logo_size' => '270x56',
+    'p_background' => 0,
+    'url_prefix' => 'webform2pdf',
+  );
 }
