@@ -97,6 +97,7 @@ function webform2pdf_config_info() {
     'label' => t('Webform2PDF settings'),
     'group' => t('Configuration'),
   );
+  return $prefixes;
 }
 
 
