@@ -1,4 +1,4 @@
-Webform2PDF
+Webform 2 PDF
 ======================
 
 The Webform2PDF module is an extension of the Webform module that can be used to generate a PDF document from the results of a form submission. The generated PDF document can be attached to the form summary e-mail or downloaded from the Results page.
