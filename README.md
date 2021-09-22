@@ -13,11 +13,6 @@ Installation
 - Visit the configuration page under Administration > Configuration > Content Authoring >
   Webform 2 PDF (admin/config/content/webform2pdf) to make global settings. Form-specific settings will appear as an extra subtab on the node edit page for each webform.
 
-Documentation
--------------
-
-Additional documentation is located in [the Wiki](https://github.com/backdrop-contrib/webform2pdf/wiki/Documentation).
-
 Differences from Drupal 7
 -------------------------
 
