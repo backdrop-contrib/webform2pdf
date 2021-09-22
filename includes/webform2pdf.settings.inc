@@ -318,8 +318,8 @@ function webform2pdf_admin_settings($form, &$form_state) {
     '#format' => isset($default['p_body']['format']) ? $default['p_body']['format'] : NULL,
     '#rows' => '10',
     '#default_value' => $default['p_body']['value'],
-    '#description' => t("The content of the PDF file can be defined here, the text can be formatted with HTML and CSS tags. The form elements can be referred with the following special strings: !vars."
-    , array('!vars' => '%pagebreak')) . theme('webform_token_help'),
+    '#description' => t("The content of the PDF file can be defined here; the text can be formatted with HTML and CSS tags.")
+      . ' ' . theme('webform_token_help', array('groups' => array('node', 'submission'))) . '.',
   );
 
   $form['page']['p_txt_align'] = array(
@@ -944,8 +944,8 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     '#format' => isset($default['p_body']['format']) ? $default['p_body']['format'] : NULL,
     '#rows' => '10',
     '#default_value' => $default['p_body']['value'],
-    '#description' => t("The content of the PDF file can be defined here, the text can be formatted with HTML and CSS tags.")
-      . theme('webform_token_help', array('groups' => array('node', 'submission'))),
+    '#description' => t("The content of the PDF file can be defined here; the text can be formatted with HTML and CSS tags.")
+      . ' ' . theme('webform_token_help', array('groups' => array('node', 'submission'))) . '.',
   );
 
   $form['page']['p_txt_align'] = array(
@@ -1266,9 +1266,11 @@ function _webform2pdf_save_logo($logo, $nid) {
     $destination = file_stream_wrapper_uri_normalize($webform2pdf_directory);
     if ($file = file_move($file, $destination, FILE_EXISTS_RENAME)) {
       $file->status |= FILE_STATUS_PERMANENT;
-      $file = file_save($file);
-      file_usage_add($file, 'webform2pdf', $logo, $nid);
-      return $file->fid;
+      if (file_save($file)) {
+        file_usage_add($file, 'webform2pdf', $logo, $nid);
+        return $file->fid;
+      }
+      return NULL;
     }
   }
   return 0;

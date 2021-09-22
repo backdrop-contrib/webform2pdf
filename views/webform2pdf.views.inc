@@ -27,11 +27,21 @@ function webform2pdf_views_data_alter(&$data) {
 }
 
 /**
- * Implements hook_views_default_views_alter().
+ * Implements hook_views_pre_view().
+ *
+ * Add the "download pdf" operation to the list of webform submissions.
  */
-function webform2pdf_views_default_views_alter(&$views) {
-  if (isset($views['webform_submissions'])) {
-    $handler = &$views['webform_submissions']->display['default']->handler;
+function webform2pdf_views_pre_view(&$view, &$display_id, &$args) {
+
+  return;
+
+  // @TODO: the D7 module implemented hook_views_default_views_alter() to add
+  // the download pdf link automatically to a webform's list of submissions. We
+  // can no longer alter default views (because they're in config files), but
+  // this code automatically adds it to the webform submission View. But do we
+  // want to always do that, or make it optional?
+
+  if ($view->name == 'webform_submissions') {
     $download_pdf = array(
       'id' => 'download_pdf',
       'table' => 'webform_submissions',
@@ -40,7 +50,7 @@ function webform2pdf_views_default_views_alter(&$views) {
       'element_label_colon' => FALSE,
       'access_check' => 0,
     );
-    $handler->display->display_options['fields']['download_pdf'] = $download_pdf;
-    $handler->display->display_options['style_options']['columns']['download_pdf'] = 'view_submission_1';
+    $view->display_handler->options['fields']['download_pdf'] = $download_pdf;
+    $view->display_handler->options['style_options']['columns']['download_pdf'] = 'view_submission_1';
   }
 }

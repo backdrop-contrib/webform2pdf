@@ -247,7 +247,6 @@ function theme_webform2pdf_content($vars) {
     'exclude_empty' => 1,
     'excluded_components' => array(),
   );
-
   return webform_replace_tokens($vars['template']['p_body']['value'], $vars['node'], $vars['submission'], $email, TRUE);
 } // function theme_webform2pdf_pdf_content()
 
