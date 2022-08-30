@@ -85,7 +85,7 @@ function webform2pdf_enabled_pdf_access() {
     ->execute()
     ->fetchAssoc();
 
-  return ($row['enabled'] && call_user_func_array($call, $param));
+  return (!empty($row['enabled']) && $row['enabled'] && call_user_func_array($call, $param));
 } // function webform2pdf_enabled_pdf_access()
 
 
