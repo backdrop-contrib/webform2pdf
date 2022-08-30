@@ -1212,7 +1212,6 @@ function webform2pdf_edit_form_submit($form, &$form_state) {
           if ( $form_state['values'][$logo . '_del'] ) {
             $logo_file = file_load($form_state['values'][$logo]);
             file_usage_delete($logo_file, 'webform2pdf', $logo, 1);
-            file_delete($logo_file);
             $save[$logo] = 0;
           }
           unset($save[$logo . '_del']);
