@@ -23,12 +23,10 @@ function _webform2pdf_init_tcpdf($node, $template) {
   if ( is_file($tcpdf_dir . '/tcpdf.php')   ) {
     include_once( backdrop_get_path('module', 'webform2pdf') . '/webform2pdf.class.inc' );
 
-    // TODO This variable was probably removed in Backdrop without replacement.
-    // TODO This variable was probably removed in Backdrop without replacement.
     $font = array(
-      variable_get('p_font_family', 'dejavuserif'),
+      config_get('webform2pdf.settings', 'p_font_family'),
       '',
-      variable_get('p_font_size', 12),
+      config_get('webform2pdf.settings', 'p_font_size'),
     );
 
     // create new PDF document
