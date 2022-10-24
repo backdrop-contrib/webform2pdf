@@ -4,7 +4,6 @@
  *   Webform2pdf module install/schema hooks.
  */
 
-
 /**
  * Implements hook_install().
  */
@@ -12,6 +11,23 @@ function webform2pdf_install() {
   config_set('webform2pdf.settings', 'webform2pdf_default', _webform2pdf_default());
 }
 
+/**
+ * Implements hook_requirements().
+ */
+function webform2pdf_requirements($phase) {
+  if ($phase == 'runtime') {
+    if (!module_exists('tcpdf')) {
+      return array(
+        'webform2pdf_tcpdf_check' => array(
+          'title' => t('Webform2PDF and TCPDF'),
+          'description' => t('Webform2PDF requires the TCPDF library. The current version of Webform2PDF will use a bundled TCPDF library, but you should install and enable the <a href="https://backdropcms.org/project/tcpdf">TCPDF module</a>, as future versions of Webform2PDF will require it.'),
+          'severity' => REQUIREMENT_WARNING,
+        ),
+      );
+    }
+  }
+  return array();
+}
 
 /**
  * Implements hook_enable().
@@ -23,14 +39,12 @@ function webform2pdf_enable() {
   }
 }
 
-
 /**
  * Implements hook_uninstall().
  */
 function webform2pdf_uninstall() {
   config('webform2pdf.settings')->delete();
 }
-
 
 /**
  * Implements hook_schema().
@@ -65,14 +79,12 @@ function webform2pdf_schema() {
   return $schema;
 }
 
-
 /**
  * Implements hook_update_last_removed().
  */
 function webform2pdf_update_last_removed() {
   return 7402;
 }
-
 
 /**
  * Convert Webform2PDF variables to config.
@@ -87,7 +99,6 @@ function webform2pdf_update_1000() {
   update_variable_del('webform2pdf_default');
   update_variable_del('webform2pdf_key');
 }
-
 
 /**
  * Return default value for config/variable webform2pdf_default.
