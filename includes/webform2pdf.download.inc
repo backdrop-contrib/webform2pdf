@@ -84,6 +84,11 @@ function webform2pdf_download_pdf_form($form, &$form_state, $node) {
   global $user;
   module_load_include('inc', 'webform', 'includes/webform.submissions');
 
+  $form[] = array(
+    '#type' => 'help',
+    '#markup' => t('A PDF document will be generated from the marked results.'),
+  );
+
   $header = theme('webform_results_submissions_header', array('node' => $node));
   $submissions = webform_get_submissions($node->nid, $header);
 
