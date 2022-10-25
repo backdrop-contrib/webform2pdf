@@ -6,7 +6,14 @@
 function _webform2pdf_init_tcpdf($node, $template) {
   global $base_url;
 
-  $tcpdf_dir = backdrop_get_path('module', 'webform2pdf') . '/libraries/tcpdf';
+  // Use TCPDF module's library if it exists, otherwise fall back to deprecated
+  // bundled library.
+  if (module_exists('tcpdf')) {
+    $tcpdf_dir = backdrop_get_path('module', 'tcpdf') . '/tcpdf';
+  }
+  else {
+    $tcpdf_dir = backdrop_get_path('module', 'webform2pdf') . '/libraries/tcpdf';
+  }
 
   if (defined('K_TCPDF_EXTERNAL_CONFIG')) {
     define('K_TCPDF_EXTERNAL_CONFIG', TRUE);
