@@ -603,7 +603,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
   $form['enabled'] = array(
     '#default_value' => $default['enabled'],
     '#type' => 'checkbox',
-    '#title' => t('Generate PDF Document.'),
+    '#title' => t('Generate PDF document.'),
   );
 
   $webform2pdf_default = $config->get('webform2pdf_default');
