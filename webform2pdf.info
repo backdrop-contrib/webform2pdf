@@ -4,5 +4,6 @@ backdrop = 1.x
 type = module
 package = Webform
 dependencies[] = webform
+dependencies[] = tcpdf
 
 configure = admin/config/content/webform2pdf

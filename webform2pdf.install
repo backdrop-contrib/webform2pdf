@@ -20,8 +20,9 @@ function webform2pdf_requirements($phase) {
       return array(
         'webform2pdf_tcpdf_check' => array(
           'title' => t('Webform2PDF and TCPDF'),
-          'description' => t('Webform2PDF requires the TCPDF library. The current version of Webform2PDF will use a bundled TCPDF library, but you should install and enable the <a href="https://backdropcms.org/project/tcpdf">TCPDF module</a>, as future versions of Webform2PDF will require it.'),
-          'severity' => REQUIREMENT_WARNING,
+          'value' => t('TCPDF not installed.'),
+          'description' => t('Webform2PDF requires the TCPDF library. You should install and enable the <a href="https://backdropcms.org/project/tcpdf">TCPDF module</a>.'),
+          'severity' => REQUIREMENT_ERROR,
         ),
       );
     }

@@ -4,7 +4,7 @@
  * @file
  *   Webform2pdf module W2PDF object class.
  */
-include_once(backdrop_get_path('module', 'webform2pdf') . '/libraries/tcpdf/tcpdf.php');
+include_once backdrop_get_path('module', 'tcpdf') . '/tcpdf/tcpdf.php';
 
 class W2PDF extends TCPDF {
 
