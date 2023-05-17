@@ -65,7 +65,7 @@ class webform2pdf_handler_field_submission_download_pdf extends views_handler_fi
       module_load_include('inc', 'webform', 'includes/webform.submissions');
       $node = node_load($nid);
       $submission = webform_get_submission($nid, $sid);
-      if (!webform_submission_access($node, $submission, 'view')) {
+      if (!webform2pdf_enabled_pdf_access($node, 'webform_submission_access', $node, $submission, 'view')) {
         return;
       }
     }
