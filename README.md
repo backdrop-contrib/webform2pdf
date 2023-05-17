@@ -8,7 +8,7 @@ Different PDF templates can be set for each form. The templates can be formatted
 Installation
 ------------
 
-- Install this module using [the official Backdrop CMS instructions](  https://backdropcms.org/guide/modules).
+- Install this module using [the official Backdrop CMS instructions](https://backdropcms.org/guide/modules). You must also install the [TCPDF module](https://backdropcms.org/project/tcpdf), which is required by Webform 2 PDF.
 
 - Visit the configuration page under Administration > Configuration > Content Authoring >
   Webform 2 PDF (admin/config/content/webform2pdf) to make global settings. Form-specific settings will appear as an extra subtab on the node edit page for each webform.
@@ -28,12 +28,11 @@ Credits
 
 - Ported to Backdrop CMS by [Robert J. Lang](https://github.com/bugfolder).
 - Originally written for Drupal by [niif](https://www.drupal.org/u/niif).
-- Based on the [TCPDF library](https://github.com/tecnickcom/TCPDF).
 
 License
 -------
 
-This project is GPL v3 software.
+This project is GPL v2 software.
 See the LICENSE.txt file in this directory for the complete text.
 
 TCPDF is LGPL v3 software.
