@@ -14,9 +14,9 @@ function webform2pdf_send2pdf($node, $submission) {
       $no_mail = array_diff($no_mail, array(0));
       if ( !empty($no_mail) ) {
         foreach ($no_mail as $eid) {
-          $email_addresses = $node->webform['emails'][$eid]['email'];
-          if ( isset($node->webform['components'][$email_addresses]) ) {
-            $email_addresses = $submission->data[$eid]['value'];
+          $email_cid = $node->webform['emails'][$eid]['email'];
+          if ( isset($node->webform['components'][$email_cid]) ) {
+            $email_addresses = $submission->data[$eid];
           }
           else {
             $email_addresses = array_filter(explode(',', check_plain($node->webform['emails'][$eid]['email'])));
