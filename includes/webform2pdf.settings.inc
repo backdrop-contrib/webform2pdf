@@ -347,7 +347,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
     '#default_value' => $default['p_font_size'],
     '#size' => 2,
     '#maxlength' => 3,
-    '#description' => t('Set the font size to be used for header text. This is the base value for the scaling applied to other text styles.'),
+    '#description' => t('Set the font size to be used for page body text. This is the base value for the scaling applied to other text styles.'),
   );
 
   // Footer
@@ -425,7 +425,7 @@ function webform2pdf_admin_settings($form, &$form_state) {
     '#default_value' => $default['f_font_size'],
     '#size' => 2,
     '#maxlength' => 3,
-    '#description' => t('Set the font size to be used for header text. This is the base value for the scaling applied to other text styles.'),
+    '#description' => t('Set the font size to be used for footer text. This is the base value for the scaling applied to other text styles.'),
   );
 
   $form['footer']['f_right_logo'] = array(
@@ -973,7 +973,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     '#default_value' => $default['p_font_size'],
     '#size' => 2,
     '#maxlength' => 3,
-    '#description' => t('Set the font size to be used for header text. This is the base value for the scaling applied to other text styles.'),
+    '#description' => t('Set the font size to be used for page body text. This is the base value for the scaling applied to other text styles.'),
   );
 
   // Footer
@@ -1056,7 +1056,7 @@ function webform2pdf_edit_form($form, &$form_state, $node) {
     '#default_value' => $default['f_font_size'],
     '#size' => 2,
     '#maxlength' => 3,
-    '#description' => t('Set the font size to be used for header text. This is the base value for the scaling applied to other text styles.'),
+    '#description' => t('Set the font size to be used for footer text. This is the base value for the scaling applied to other text styles.'),
   );
 
   $form['footer']['f_right_logo'] = array(
