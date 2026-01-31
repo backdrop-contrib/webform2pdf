@@ -21,6 +21,12 @@ class W2PDF extends TCPDF {
   protected $header_logo_size = array();
 
   /**
+   * @var string to print on document footer.
+   * @access protected
+   */
+  protected $footer_string = '';
+
+  /**
    * @var align string to print on document header.
    * @access protected
    */
